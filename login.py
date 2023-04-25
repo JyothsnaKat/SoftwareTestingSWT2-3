@@ -24,9 +24,9 @@ class Login:
         data = (self.username,)
         inputData = (self.username, self.password,)
         returnVal = db.validateData(data, inputData)
-        if (returnVal == 1):
+        if (returnVal == True):
             print("Logged In Successfully")
-        elif(returnVal == 2):
+        elif(returnVal == False):
             print("Wrong Credentials")
         else:
             print("Account does not exist")
