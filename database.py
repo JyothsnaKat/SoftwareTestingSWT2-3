@@ -87,8 +87,11 @@ class Database:
         self.curr.execute(validate_data, data)
         row = self.curr.fetchall()
         if not row:
-            return 3
+            return None
         elif row[0][1] == inputData[0]:
-            return row[0][2] == bcrypt.hashpw(inputData[1].encode(), row[0][2])
+            if row[0][2] == bcrypt.hashpw(inputData[1].encode(), row[0][2]):
+                return True
+            else:
+                return False    
         else:
-            return 2
+            return False
