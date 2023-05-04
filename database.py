@@ -86,6 +86,7 @@ class Database:
 
         self.curr.execute(validate_data, data)
         row = self.curr.fetchall()
+        returnVal = 0
         if not row:
             return None
         elif row[0][1] == inputData[0]:
@@ -95,3 +96,25 @@ class Database:
                 return False    
         else:
             return False
+    def fetchData(self, user_id):
+        get_user_by_id = '''
+            SELECT * FROM cred WHERE username = (?);
+        '''
+        self.curr.execute(get_user_by_id, user_id)
+        user = self.curr.fetchall()
+        print(user)
+        return user
+ 
+    def update_user_info(self, username, field, new_value):
+        '''
+        Update a specific field for a given username in the cred table
+        '''
+        update_query = f'''
+            UPDATE cred
+            SET {field} = ?
+            WHERE username = ?
+        '''
+
+        data = (new_value, username)
+        self.curr.execute(update_query, data)
+        self.conn.commit()
