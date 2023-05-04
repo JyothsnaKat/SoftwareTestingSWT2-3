@@ -1,41 +1,43 @@
+# Importing Important Libraries
+
 import sqlite3
 import bcrypt
 
 
 class Database:
-    """
-    Database class for sqlite3
-    :param conn: sqlite3 Connection
-    :param curr: cursor
-    """
-
+    '''
+        Database Class for sqlite3
+        :params conn - sqlite3Connection
+        :params curr - cursor
+    '''
     def __init__(self):
         try:
             self.conn = sqlite3.connect("test.db")
-            print("Successfully connected to the database")
+            print("Successfully connected to the system")
             self.curr = self.conn.cursor()
         except:
-            print("Failed to connect to the database")
+            print("Failed")
 
-    def createTables(self):
-        """
-        Method for creating tables in the database
-        """
-        create_cred_table = '''
+    def createTable(self):
+
+        '''
+            Method for Creating Table in Database
+        '''
+
+        create_table = '''
             CREATE TABLE IF NOT EXISTS cred(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id Integer PRIMARY KEY AUTOINCREMENT,
                 username TEXT NOT NULL,
                 password TEXT NOT NULL,
-                age INTEGER,
+                age TEXT,
                 interests TEXT,
-                height INTEGER,
+                height TEXT,
                 smoking TEXT,
                 drinking TEXT,
                 preferences TEXT,
                 bio TEXT 
             );
-        '''
-
+            '''
         create_request_table = '''
             CREATE TABLE IF NOT EXISTS request(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -57,16 +59,17 @@ class Database:
             );
         '''
 
-        self.curr.execute(create_cred_table)
+        self.curr.execute(create_table)
         self.curr.execute(create_request_table)
         self.curr.execute(create_matches_table)
         self.conn.commit()
 
     def insertData(self, data):
-        """
-        Method for inserting data in cred table in the database
-        :param data: tuple containing the values for the fields
-        """
+
+        '''
+            Method for Insertig Data in Table in Database
+        '''
+
         insert_data = """
             INSERT INTO cred(username, password, age, interests, height, smoking, drinking, preferences, bio)
             VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?);
@@ -75,47 +78,48 @@ class Database:
         self.conn.commit()
 
     def searchData(self, data):
-        """
-        Method for searching data in cred table in the database
-        :param data: tuple containing the values for the fields
-        :return: 1 if user does not exist, 0 otherwise
-        """
+
+        '''
+            Method for Searching Data in Table in Database
+        '''
+
         search_data = '''
             SELECT * FROM cred WHERE username = (?);
         '''
+
         self.curr.execute(search_data, data)
 
         rows = self.curr.fetchall()
+        #print(rows)
 
         if rows == []:
             return 1
         return 0
 
     def validateData(self, data, inputData):
-        """
-        Method for validating data in cred table in the database
-        :param data: tuple containing the values for the fields
-        :param inputData: tuple containing the values for the fields
-        :return: True if username and password match, False otherwise
-        """
+
+        '''
+            Method for Validating Data Table in Database
+        '''
+
         validate_data = """
             SELECT * FROM cred WHERE username = (?);
         """
 
         self.curr.execute(validate_data, data)
         row = self.curr.fetchall()
-
+        returnVal = 0
         if not row:
             return None
         elif row[0][1] == inputData[0]:
             if row[0][2] == bcrypt.hashpw(inputData[1].encode(), row[0][2]):
                 return True
             else:
-                return False
+                return False    
         else:
             return False
-
-        def sendRequest(self, from_user_id, to_user_id):
+        
+    def sendRequest(self, from_user_id, to_user_id):
         '''
             Method for sending Request to a User
         '''
@@ -193,7 +197,7 @@ class Database:
         self.curr.execute(reject_request, (request_id,))
         self.conn.commit()
 
-        def createTables(self):
+    def createTables(self):
 
         '''
             Method for Creating Tables in Database
@@ -239,7 +243,6 @@ class Database:
         self.curr.execute(create_table_request)
         self.curr.execute(create_table_matches)
         self.conn.commit()
-
     def insertData(self, data):
 
         '''
@@ -315,7 +318,7 @@ class Database:
         self.curr.execute(sent_requests, (user_id,))
         return self.curr.fetchall()
 
-        def getReceivedRequests(self, user_id):
+    def getReceivedRequests(self, user_id):
         '''
             Method for Retrieving Received Requests for a User
         '''
@@ -410,4 +413,25 @@ class Database:
         """
         self.curr.execute(matches_query, (user_id, user_id))
         return self.curr.fetchall()
+    def fetchData(self, user_id):
+        get_user_by_id = '''
+            SELECT * FROM cred WHERE username = (?);
+        '''
+        self.curr.execute(get_user_by_id, user_id)
+        user = self.curr.fetchall()
+        print(user)
+        return user
+ 
+    def update_user_info(self, username, field, new_value):
+        '''
+        Update a specific field for a given username in the cred table
+        '''
+        update_query = f'''
+            UPDATE cred
+            SET {field} = ?
+            WHERE username = ?
+        '''
 
+        data = (new_value, username)
+        self.curr.execute(update_query, data)
+        self.conn.commit()
