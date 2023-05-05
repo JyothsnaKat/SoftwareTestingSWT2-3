@@ -74,21 +74,21 @@ class Database:
         create_request_table = '''
             CREATE TABLE IF NOT EXISTS request(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                from_user_id INTEGER,
-                to_user_id INTEGER,
+                from_user_id TEXT,
+                to_user_id TEXT,
                 status TEXT NOT NULL,
-                FOREIGN KEY (from_user_id) REFERENCES cred(id),
-                FOREIGN KEY (to_user_id) REFERENCES cred(id)
+                FOREIGN KEY (from_user_id) REFERENCES cred(username),
+                FOREIGN KEY (to_user_id) REFERENCES cred(username)
             );
         '''
 
         create_matches_table = '''
             CREATE TABLE IF NOT EXISTS matches(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user1_id INTEGER,
-                user2_id INTEGER,
-                FOREIGN KEY (user1_id) REFERENCES cred(id),
-                FOREIGN KEY (user2_id) REFERENCES cred(id)
+                user1_id TEXT,
+                user2_id TEXT,
+                FOREIGN KEY (user1_id) REFERENCES cred(username),
+                FOREIGN KEY (user2_id) REFERENCES cred(username)
             );
         '''
 
@@ -169,7 +169,7 @@ class Database:
             SELECT request.id, cred.username, cred.interests, cred.height, cred.preferences, cred.bio, request.status 
             FROM request 
             INNER JOIN cred 
-            ON request.to_user_id = cred.id 
+            ON request.to_user_id = cred.username 
             WHERE request.from_user_id = (?);
         """
         self.curr.execute(sent_requests, (from_user_id,))
@@ -189,7 +189,7 @@ class Database:
             SELECT request.id, cred.username, cred.interests, cred.height, cred.preferences, cred.bio, request.status, request.to_user_id
             FROM request 
             INNER JOIN cred 
-            ON request.from_user_id = cred.id 
+            ON request.from_user_id = cred.username 
             WHERE request.to_user_id = (?);
         """
         self.curr.execute(received_requests, (to_user_id,))
@@ -291,7 +291,7 @@ class Database:
         matches_query = """
             SELECT c.id, c.username, c.age, c.interests, c.height, c.smoking, c.drinking, c.preferences, c.bio
             FROM cred c
-            WHERE c.id IN (
+            WHERE c.username IN (
                 SELECT m.user2_id 
                 FROM matches m 
                 WHERE m.user1_id = (?)
