@@ -17,6 +17,35 @@ class Database:
             self.curr = self.conn.cursor()
         except:
             print("Failed")
+    def createUnderage(self):
+        '''
+            Method for Creating Table in Database
+        '''
+        create_table_underage = '''
+            CREATE TABLE IF NOT EXISTS cred_under(
+                id Integer PRIMARY KEY AUTOINCREMENT,
+                firstname TEXT NOT NULL,
+                lastname TEXT NOT NULL,
+                email TEXT NOT NULL,
+                age TEXT NOT NULL
+            );
+        '''
+
+        self.curr.execute(create_table_underage)
+        self.conn.commit()
+    def insertDataUnder(self, datav):
+
+        '''
+            Method for Inserting Data in Table in Database
+        '''
+
+        insert_data_under = """
+            INSERT INTO cred_under(firstname, lastname, email, age)
+            VALUES(?, ?, ?, ?);
+        """
+        self.curr.execute(insert_data_under, datav)
+        self.conn.commit()
+
 
     def createTable(self):
 
@@ -27,6 +56,9 @@ class Database:
         create_table = '''
             CREATE TABLE IF NOT EXISTS cred(
                 id Integer PRIMARY KEY AUTOINCREMENT,
+                firstname TEXT NOT NULL,
+                lastname TEXT NOT NULL,
+                email TEXT NOT NULL,
                 username TEXT NOT NULL,
                 password TEXT NOT NULL,
                 age TEXT,
@@ -37,7 +69,7 @@ class Database:
                 preferences TEXT,
                 bio TEXT 
             );
-            '''
+        '''
         create_request_table = '''
             CREATE TABLE IF NOT EXISTS request(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -63,7 +95,6 @@ class Database:
         self.curr.execute(create_request_table)
         self.curr.execute(create_matches_table)
         self.conn.commit()
-
     def insertData(self, data):
 
         '''
@@ -71,8 +102,8 @@ class Database:
         '''
 
         insert_data = """
-            INSERT INTO cred(username, password, age, interests, height, smoking, drinking, preferences, bio)
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?);
+            INSERT INTO cred(firstname, lastname, email, username, password, age, interests, height, smoking, drinking, preferences, bio)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         """
         self.curr.execute(insert_data, data)
         self.conn.commit()
@@ -108,17 +139,15 @@ class Database:
 
         self.curr.execute(validate_data, data)
         row = self.curr.fetchall()
-        returnVal = 0
         if not row:
             return None
-        elif row[0][1] == inputData[0]:
-            if row[0][2] == bcrypt.hashpw(inputData[1].encode(), row[0][2]):
+        elif row[0][4] == inputData[0]:
+            if row[0][5] == bcrypt.hashpw(inputData[1].encode(), row[0][5]):
                 return True
             else:
                 return False    
         else:
             return False
-        
     def sendRequest(self, from_user_id, to_user_id):
         '''
             Method for sending Request to a User
@@ -196,106 +225,47 @@ class Database:
         """
         self.curr.execute(reject_request, (request_id,))
         self.conn.commit()
-
-    def createTables(self):
-
-        '''
-            Method for Creating Tables in Database
-        '''
-
-        create_table_cred = '''
-            CREATE TABLE IF NOT EXISTS cred(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT NOT NULL,
-                password TEXT NOT NULL,
-                age INTEGER,
-                interests TEXT,
-                height INTEGER,
-                smoking TEXT,
-                drinking TEXT,
-                preferences TEXT,
-                bio TEXT 
-            );
-        '''
-
-        create_table_request = '''
-            CREATE TABLE IF NOT EXISTS request(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                from_user_id INTEGER NOT NULL,
-                to_user_id INTEGER NOT NULL,
-                status INTEGER NOT NULL,
-                FOREIGN KEY (from_user_id) REFERENCES cred(id),
-                FOREIGN KEY (to_user_id) REFERENCES cred(id)
-            );
-        '''
-
-        create_table_matches = '''
-            CREATE TABLE IF NOT EXISTS matches(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user1_id INTEGER,
-                user2_id INTEGER,
-                FOREIGN KEY (user1_id) REFERENCES cred(id),
-                FOREIGN KEY (user2_id) REFERENCES cred(id)
-            );
-        '''
-
-        self.curr.execute(create_table_cred)
-        self.curr.execute(create_table_request)
-        self.curr.execute(create_table_matches)
-        self.conn.commit()
-    def insertData(self, data):
-
-        '''
-            Method for Inserting Data in Table in Database
-        '''
-
-        insert_data = """
-            INSERT INTO cred(username, password, age, interests, height, smoking, drinking, preferences, bio)
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?);
-        """
-        self.curr.execute(insert_data, data)
-        self.conn.commit()
-
-    def searchData(self, data):
-
-        '''
-            Method for Searching Data in Table in Database
-        '''
-
-        search_data = '''
+    def fetchData(self, user_id):
+        get_user_by_id = '''
             SELECT * FROM cred WHERE username = (?);
         '''
-
-        self.curr.execute(search_data, data)
+        self.curr.execute(get_user_by_id, user_id)
+        user = self.curr.fetchall()
+        print(user)
+        return user
+    def searchEmail(self,user_email):
+        get_user_by_email = '''
+            SELECT * FROM cred WHERE email = (?);
+        '''
+        self.curr.execute(get_user_by_email, user_email)
 
         rows = self.curr.fetchall()
-
         if rows == []:
             return 1
         return 0
-
-    def validateData(self, data, inputData):
-
+    def searchEmailUnderage(self,user_email):
+        get_user_by_email = '''
+            SELECT * FROM cred_under WHERE email = (?);
         '''
-            Method for Validating Data Table in Database
+        self.curr.execute(get_user_by_email, user_email)
+
+        rows = self.curr.fetchall()
+        if rows == []:
+            return 1
+        return 0
+    def update_user_info(self, username, field, new_value):
+        '''
+        Update a specific field for a given username in the cred table
+        '''
+        update_query = f'''
+            UPDATE cred
+            SET {field} = ?
+            WHERE username = ?
         '''
 
-        validate_data = """
-            SELECT * FROM cred WHERE username = (?);
-        """
-
-        self.curr.execute(validate_data, data)
-        row = self.curr.fetchall()
-        if not row:
-            return None
-        elif row[0][1] == inputData[0]:
-            if row[0][2] == bcrypt.hashpw(inputData[1].encode(), row[0][2]):
-                return True
-            else:
-                return False    
-        else:
-            return False
-
+        data = (new_value, username)
+        self.curr.execute(update_query, data)
+        self.conn.commit()
     def getUserId(self, username):
         '''
             Method for Retrieving User ID from the cred table
@@ -305,84 +275,6 @@ class Database:
         '''
         self.curr.execute(get_user_id, (username,))
         return self.curr.fetchone()[0]
-
-    def getSentRequests(self, user_id):
-        '''
-            Method for Retrieving Sent Requests for a User
-        '''
-        sent_requests = '''
-            SELECT c.id, c.username, r.status FROM request r
-            JOIN cred c ON r.to_user_id = c.id
-            WHERE r.from_user_id = (?);
-        '''
-        self.curr.execute(sent_requests, (user_id,))
-        return self.curr.fetchall()
-
-    def getReceivedRequests(self, user_id):
-        '''
-            Method for Retrieving Received Requests for a User
-        '''
-        received_requests = '''
-            SELECT c.id, c.username, r.status, r.id as request_id FROM request r
-            JOIN cred c ON r.from_user_id = c.id
-            WHERE r.to_user_id = (?);
-        '''
-        self.curr.execute(received_requests, (user_id,))
-        return self.curr.fetchall()
-
-    def sendRequest(self, from_user_id, to_user_id):
-        '''
-            Method for sending Request to a User
-        '''
-        request_data = (from_user_id, to_user_id, 0)
-        add_request = """
-            INSERT INTO request(from_user_id, to_user_id, status)
-            VALUES(?, ?, ?);
-        """
-        self.curr.execute(add_request, request_data)
-        self.conn.commit()
-
-    def acceptRequest(self, request_id):
-        '''
-            Method for Accepting Friend Request
-        '''
-        accept_request = """
-            UPDATE request 
-            SET status = 1 
-            WHERE id = (?);
-        """
-        self.curr.execute(accept_request, (request_id,))
-        self.conn.commit()
-
-        request = self.getRequest(request_id)
-
-        # check if the request is accepted by the other user as well
-        if request[3] == 1:
-            user1_id = request[1]
-            user2_id = request[2]
-            self.createMatch(user1_id, user2_id)
-
-    def getRequest(self, request_id):
-        '''
-            Method for Retrieving a Request
-        '''
-        get_request = '''
-            SELECT * FROM request WHERE id = (?);
-        '''
-        self.curr.execute(get_request, (request_id,))
-        return self.curr.fetchone()
-
-    def rejectRequest(self, request_id):
-        '''
-            Method for Rejecting Friend Request
-        '''
-        reject_request = """
-            DELETE FROM request 
-            WHERE id = (?);
-        """
-        self.curr.execute(reject_request, (request_id,))
-        self.conn.commit()
-
     def createMatch(self, user1_id, user2_id):
         '''
             Method for Creating Match between two users
@@ -413,25 +305,3 @@ class Database:
         """
         self.curr.execute(matches_query, (user_id, user_id))
         return self.curr.fetchall()
-    def fetchData(self, user_id):
-        get_user_by_id = '''
-            SELECT * FROM cred WHERE username = (?);
-        '''
-        self.curr.execute(get_user_by_id, user_id)
-        user = self.curr.fetchall()
-        print(user)
-        return user
- 
-    def update_user_info(self, username, field, new_value):
-        '''
-        Update a specific field for a given username in the cred table
-        '''
-        update_query = f'''
-            UPDATE cred
-            SET {field} = ?
-            WHERE username = ?
-        '''
-
-        data = (new_value, username)
-        self.curr.execute(update_query, data)
-        self.conn.commit()
