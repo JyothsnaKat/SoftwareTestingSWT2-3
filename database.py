@@ -179,8 +179,7 @@ class Database:
             print("ID\tName\t\tInterests\tHeight\t\tPreferences\tBio\t\t\t\tStatus")
             for row in rows:
                 print(f"{row[0]}\t{row[1]}\t{row[2]}\t{row[3]}cm\t{row[4]}\t{row[5][:25]}\t\t{row[6]}")
-        else:
-            print("You haven't sent any requests yet.")
+        return rows
 
     def getReceivedRequests(self, to_user_id):
         '''
@@ -200,8 +199,6 @@ class Database:
             print("ID\tName\t\tInterests\tHeight\t\tPreferences\tBio\t\t\t\tStatus")
             for row in rows:
                 print(f"{row[0]}\t{row[1]}\t{row[2]}\t{row[3]}cm\t{row[4]}\t{row[5][:25]}\t\t{row[6]}")
-        else:
-            print("You don't have any received requests yet.")
         return rows
 
     def acceptRequest(self, request_id):

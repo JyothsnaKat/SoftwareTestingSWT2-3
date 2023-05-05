@@ -299,52 +299,57 @@ class ViewRequests:
         self.user_id = user_id
 
     def view(self):
-        print("1. Sent Requests")
-        print("2. Received Requests")
-        option = input("Enter Your Option: ")
-        if option == '1':
-            sent_requests = db.getSentRequests(self.user_id)
-            if not sent_requests:
-                print("You have no sent friend requests.")
-            else:
-                print("Sent friend requests:")
-                for r in sent_requests:
-                    status = "Accepted" if r[2] == 1 else "Pending"
-                    print(f"{r[0]}. {r[1]} - Status: {status}")
-
-                req_id = input("Enter the request ID to delete or type 'back' to go back: ")
-                if req_id.lower() == 'back':
-                    return
+        while True:
+            print("1. Sent Requests")
+            print("2. Received Requests")
+            print("3. Go back")
+            option = input("Enter your option: ")
+            if option == '1':
+                sent_requests = db.getSentRequests(self.user_id)
+                if not sent_requests:
+                    print("You haven't sent any requests yet.")
+                    
                 else:
-                    req_id = int(req_id)  # Cast input to integer
-                    db.deleteSentRequest(self.user_id, req_id)
-                    print("Sent request deleted successfully.")
-        elif option == '2':
-            received_requests = db.getReceivedRequests(self.user_id)
-            if not received_requests:
-                print("You have no received friend requests.")
-            else:
-                print("Received friend requests:")
-                for r in received_requests:
-                    status = "Accepted" if r[2] == 1 else "Pending"
-                    print(f"{r[0]}. {r[1]} - Status: {status}")
-
-                req_id = input("Enter the request ID to accept/reject or type 'back' to go back: ")
-                if req_id.lower() == 'back':
-                    return
+                    print("Sent friend requests:")
+                    for r in sent_requests:
+                        status = "Accepted" if r[2] == 1 else "Pending"
+                        print(f"{r[0]}. {r[1]} - Status: {status}")
+                    
+            
+            elif option == '2':
+                received_requests = db.getReceivedRequests(self.user_id)
+                if not received_requests:
+                    print("You don't have any received requests yet.")
                 else:
-                    req_id = int(req_id)  # Cast input to integer
-                    choice = input("Do you want to accept or reject the request? (a/r): ")
-                    if choice.lower() == 'a':
-                        db.acceptFriendRequest(self.user_id, req_id)
-                        print("Friend request accepted.")
-                    elif choice.lower() == 'r':
-                        db.rejectFriendRequest(self.user_id, req_id)
-                        print("Friend request rejected.")
+                    print("Received friend requests:")
+                    for r in received_requests:
+                        status = "Accepted" if r[6] == 1 else "Pending"
+                        print(f"{r[0]}. {r[1]} - Status: {status}")
+
+                    req_id = input("Enter the request ID to accept/reject or type 'back' to go back: ")
+                    if req_id.lower() == 'back':
+                        continue
                     else:
-                        print("Invalid choice.")
-        else:
-            print("Invalid option.")
+                        try:
+                            
+                            req_id = int(req_id)  # Cast input to integer
+                            choice = input("Do you want to accept or reject the request? (a/r): ")
+                            if choice.lower() == 'a':
+                                db.acceptFriendRequest(self.user_id, req_id)
+                                print("Friend request accepted.")
+                            elif choice.lower() == 'r':
+                                db.rejectFriendRequest(self.user_id, req_id)
+                                print("Friend request rejected.")
+                            else:
+                                print("Invalid choice.")
+                        except ValueError:
+                            print("Invalid request ID.")
+            elif option == '3':
+                break
+            else:
+                print("Invalid option.")
+
+
 
 
 
@@ -363,8 +368,8 @@ class ViewMatches:
         else:
             print("Your matches:")
             for m in matches:
-               
                 print(f"{m[0]}. {m[1]}")
+
 
 class Profile:
 
