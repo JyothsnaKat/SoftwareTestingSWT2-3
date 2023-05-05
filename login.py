@@ -35,6 +35,7 @@ class Login:
         returnVal = db.validateData(data, inputData)
         if returnVal == True:
             print("Logged In Successfully")
+            user_id = db.getUserId(self.username)
             while True:
                 print("1. Search")
                 print("2. View Matches")
@@ -46,6 +47,12 @@ class Login:
                     if secondOption == '4':
                         profile = Profile()
                         profile.update()
+                    elif secondOption == '2':
+                        view_matches = ViewMatches(user_id)
+                        view_matches.view()
+                    elif secondOption == '3':
+                        view_requests = ViewRequests(user_id)
+                        view_requests.view()
                     elif secondOption == '5':
                         print("Bye Bye!! Come back to us!! Happy dating!! \n\n")
                         break
@@ -284,6 +291,80 @@ class Register:
                     print("Sorry!! Try again later. \n")
                     break
                 
+class ViewRequests:
+    """
+        Class for viewing friend requests
+    """
+    def __init__(self, user_id):
+        self.user_id = user_id
+
+    def view(self):
+        print("1. Sent Requests")
+        print("2. Received Requests")
+        option = input("Enter Your Option: ")
+        if option == '1':
+            sent_requests = db.getSentRequests(self.user_id)
+            if not sent_requests:
+                print("You have no sent friend requests.")
+            else:
+                print("Sent friend requests:")
+                for r in sent_requests:
+                    status = "Accepted" if r[2] == 1 else "Pending"
+                    print(f"{r[0]}. {r[1]} - Status: {status}")
+
+                req_id = input("Enter the request ID to delete or type 'back' to go back: ")
+                if req_id.lower() == 'back':
+                    return
+                else:
+                    req_id = int(req_id)  # Cast input to integer
+                    db.deleteSentRequest(self.user_id, req_id)
+                    print("Sent request deleted successfully.")
+        elif option == '2':
+            received_requests = db.getReceivedRequests(self.user_id)
+            if not received_requests:
+                print("You have no received friend requests.")
+            else:
+                print("Received friend requests:")
+                for r in received_requests:
+                    status = "Accepted" if r[2] == 1 else "Pending"
+                    print(f"{r[0]}. {r[1]} - Status: {status}")
+
+                req_id = input("Enter the request ID to accept/reject or type 'back' to go back: ")
+                if req_id.lower() == 'back':
+                    return
+                else:
+                    req_id = int(req_id)  # Cast input to integer
+                    choice = input("Do you want to accept or reject the request? (a/r): ")
+                    if choice.lower() == 'a':
+                        db.acceptFriendRequest(self.user_id, req_id)
+                        print("Friend request accepted.")
+                    elif choice.lower() == 'r':
+                        db.rejectFriendRequest(self.user_id, req_id)
+                        print("Friend request rejected.")
+                    else:
+                        print("Invalid choice.")
+        else:
+            print("Invalid option.")
+
+
+
+
+class ViewMatches:
+    """
+        Class for viewing matches
+    """
+    def __init__(self, user_id):
+        self.user_id = user_id
+
+    def view(self):
+        matches = db.getMatches(self.user_id)
+        if not matches:
+            print("You have no matches.")
+        else:
+            print("Your matches:")
+            for m in matches:
+               
+                print(f"{m[0]}. {m[1]}")
 
 class Profile:
 
