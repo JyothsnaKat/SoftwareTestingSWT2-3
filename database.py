@@ -62,11 +62,12 @@ class Database:
                 username TEXT NOT NULL,
                 password TEXT NOT NULL,
                 age TEXT,
+                gender TEXT,
                 interests TEXT,
                 height TEXT,
                 smoking TEXT,
                 drinking TEXT,
-                preferences TEXT,
+                genderpreferences TEXT,
                 bio TEXT 
             );
         '''
@@ -80,8 +81,8 @@ class Database:
         '''
 
         insert_data = """
-            INSERT INTO cred(firstname, lastname, email, username, password, age, interests, height, smoking, drinking, preferences, bio)
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+            INSERT INTO cred(firstname, lastname, email, username, password, age, gender, interests, height, smoking, drinking, genderpreferences, bio)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         """
         self.curr.execute(insert_data, data)
         self.conn.commit()

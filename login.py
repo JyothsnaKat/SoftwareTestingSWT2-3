@@ -91,8 +91,9 @@ class Register:
             if val == 3:
                 break
         #last name
-        self.lastname = input("Enter Last Name: ")
+        
         while True:
+            self.lastname = input("Enter Last Name: ")
             val = 0
             if not self.lastname.isalpha():
                 print("Error: Last name should have only alphabets \n")
@@ -150,6 +151,15 @@ class Register:
             except ValueError:
                     print("Error: Please enter a valid age. \n")
         #end age
+        #begin of gender
+        while True:
+            self.gender = input("What is your gender? (male or female): ")
+            if self.gender.lower() == "male" or self.gender.lower() == "female" :
+                break
+            else:
+                # Handle invalid input
+                print("Error: please enter 'male' or 'female'. \n")
+        #end gender
         #password
         while True:
             val = 0 
@@ -210,9 +220,10 @@ class Register:
                 self.height = float(input("Enter your height in centimeters: "))
                 if self.height <= 0.0:
                     raise ValueError
-                if self.height > 300.0:
+                elif self.height > 300.0:
                     print("Maximum height allowed is 300 centimeters \n ")
-                break
+                else:
+                    break
             except ValueError:
                 print("Error: Please enter a valid height. \n")
         #end of height
@@ -231,39 +242,17 @@ class Register:
             if self.drinking.lower() == "yes" or self.drinking.lower() == "no":
                 break
             else:
-                # Handle invalid input
+                # handle invalid input
                 print("Error: please enter 'yes' or 'no'. \n")
         #end of smoking
         #begin of preferences
-        preferences = ['male','female','no preference']
-        selected_preferences = []
-        print("Select your Gender Preference(s) from the list below (enter the number): \n")
-        for i, preference in enumerate(preferences):
-            print(f"{i+1}. {preference}")
         while True:
-            val = 0
-            preference_num = input("Enter the number of preference(or 'done' to finish): ")
-            if not selected_preferences and preference_num.lower() == 'done':
-                print("Error: Enter atleast one preference. \n")
+            self.genderpreferences = input("What is your gender preference? (male or female or no preference): ")
+            if self.genderpreferences.lower() == "male" or self.genderpreferences.lower() == "female" or self.genderpreferences.lower() == "no preference":
+                break
             else:
-                if preference_num.lower() == 'done':
-                    break
-                try:
-                    preference_index = int(preference_num) - 1
-                    if preference_index < 0 or preference_index >= len(preferences):
-                        raise ValueError
-                    selected_preference = preferences[preference_index]
-                    if selected_preference in selected_preferences:
-                        print("You have already selected this preferece. Enter a different preference. \n")
-                    else:
-                        selected_preferences.append(selected_preference)
-                        val = val + 1
-                        if set(selected_preferences) == set(preferences):
-                            print("You have selected all possible gender preferences. \n")
-                            break
-                except ValueError:
-                    print("Error: Please enter a valid preference from the list. \n")
-        self.preferences = ','.join(selected_preferences)
+                # Handle invalid input
+                print("Error: please enter 'male' or 'female' or 'no preference'. \n")
         #end preferences
         #begin of bio
         while True:
@@ -286,7 +275,7 @@ class Register:
             resultUser = db.searchData(dataU)
             if resultUser != 0:
                 #result = db.searchData(data)
-                data = (self.firstname, self.lastname, self.email, self.username, self.hashed, self.age, self.interests, self.height, self.smoking, self.drinking, self.preferences, self.bio )
+                data = (self.firstname, self.lastname, self.email, self.username, self.hashed, self.age, self.gender, self.interests, self.height, self.smoking, self.drinking, self.genderpreferences, self.bio )
                 result = db.insertData(data)
                 if result != 0:
                     print("Account Successfully Created!!! Your username is:",self.username)
@@ -313,12 +302,13 @@ class Profile:
         print(f"Email address: {user_info[0][3]}")
         print(f"Username: {user_info[0][4]}")
         print(f"Age: {user_info[0][6]}")
-        print(f"Interests: {user_info[0][7]}")
-        print(f"Height: {user_info[0][8]}")
-        print(f"Smoking: {user_info[0][9]}")
-        print(f"Drinking: {user_info[0][10]}")
-        print(f"Preferred Gender: {user_info[0][11]}")
-        print(f"Bio: {user_info[0][12]}")
+        print(f"Gender: {user_info[0][7]}")
+        print(f"Interests: {user_info[0][8]}")
+        print(f"Height: {user_info[0][9]}")
+        print(f"Smoking: {user_info[0][10]}")
+        print(f"Drinking: {user_info[0][11]}")
+        print(f"Preferred Gender: {user_info[0][12]}")
+        print(f"Bio: {user_info[0][13]}")
     def update(self):
         val = 0
         while True:
@@ -335,13 +325,14 @@ class Profile:
                     user_info = db.fetchData(data)
                     print("Which info do you prefer to change? \n")
                     print("1. Age")
-                    print("2. Interests")
-                    print("3. Height")
-                    print("4. Smoking")
-                    print("5. Drinking")
-                    print("6. Preferred Gender")
-                    print("7. Bio")
-                    print("8. Exit")
+                    print("2. Gender")
+                    print("3. Interests")
+                    print("4. Height")
+                    print("5. Smoking")
+                    print("6. Drinking")
+                    print("7. Preferred Gender")
+                    print("8. Bio")
+                    print("9. Exit")
                     field = input("Enter your choice to change? ")
                     if re.search("[0-9]", field):
                         if field == '1':
@@ -368,10 +359,25 @@ class Profile:
                                         break
                                 except ValueError:
                                     print("Error: Please enter a valid age. \n")
-                                
                         elif field == '2':
                             val = val + 1
-                            existing_interests = user_info[0][7]
+                            while True:
+                                gender = input("What is your gender? (male or female): ")
+                                if gender.lower() == "male" or gender.lower() == "female" :
+                                    if gender == user_info[0][7]:
+                                        print("No changes made. \n")
+                                        break
+                                    else:
+                                        db.update_user_info(user_id, "gender", gender)
+                                        print("Gender updated successfully! \n")
+                                        break
+                                else:
+                                    # Handle invalid input
+                                    print("Error: please enter 'male' or 'female'. \n")
+                                
+                        elif field == '3':
+                            val = val + 1
+                            existing_interests = user_info[0][8]
                             complete_interests = ["cricket", "swimming", "painting", "dancing", "reading"]  # Complete list of interests
                             existing_interests_list = existing_interests.split(',')
                             add_interests = [interest for interest in complete_interests if interest not in existing_interests_list]
@@ -455,7 +461,7 @@ class Profile:
                                 print("Invalid choice")
                             #interests = input("Enter your interests (comma-separated): ")
                             #interests_set = set(interests.split(","))
-                        elif field == '3':
+                        elif field == '4':
                             val = val + 1
                             while True:
                                 try:
@@ -464,7 +470,7 @@ class Profile:
                                         raise ValueError
                                     if self.height > 300.0:
                                         print("Maximum height allowed is 300 centimeters \n ")
-                                    if int(height) ==  user_info[0][8]:
+                                    if int(height) ==  user_info[0][9]:
                                         print("No changes made. \n")
                                         break
                                     else:
@@ -473,12 +479,12 @@ class Profile:
                                         break
                                 except ValueError:
                                     print("Error: Please enter a valid height. \n")
-                        elif field == '4':
+                        elif field == '5':
                             val = val + 1
                             while True:
                                 smoking = input("Do you smoke? (yes or no): ")
                                 if smoking.lower() == "yes" or smoking.lower() == "no":
-                                    if smoking.lower() == user_info[0][9]:
+                                    if smoking.lower() == user_info[0][10]:
                                         print("No changes made. \n")
                                     else:
                                         db.update_user_info(user_id, "smoking", smoking)
@@ -487,12 +493,12 @@ class Profile:
                                 else:
                                 # Handle invalid input
                                     print("Error: please enter 'yes' or 'no'. \n")
-                        elif field == '5':
+                        elif field == '6':
                             val = val + 1
                             while True:
                                 drinking = input("Do you drink? (yes or no): ")
                                 if drinking.lower() == "yes" or drinking.lower() == "no":
-                                    if drinking.lower() == user_info[0][10]:
+                                    if drinking.lower() == user_info[0][11]:
                                         print("No changes made. \n")
                                     else:
                                         db.update_user_info(user_id, "drinking", drinking)
@@ -501,96 +507,27 @@ class Profile:
                                 else:
                                 # Handle invalid input
                                     print("Error: please enter 'yes' or 'no'. \n")
-                        elif field == '6':
-                            val = val + 1
-                            existing_preferences = user_info[0][11]
-                            complete_preferences = ["male","female","no preference"]  # Complete list of interests
-                            existing_preferences_list = existing_preferences.split(',')
-                            add_preferences = [preference for preference in complete_preferences if preference not in existing_preferences_list]
-                            remove_preferences = [preference for preference in existing_preferences_list]
-                            print("1. Add")
-                            print("2. Remove")
-                            choice_in = input("Do you want to add or remove?")
-                            if choice_in == '1':
-                                if add_preferences == []:
-                                    print("No new preferences to add. \n")
-                                    
-                                else:
-                                    print("Available Preferences for Adding: \n")
-                                    selected_preferences = []
-                                    for i, preference in enumerate(add_preferences, 1):
-                                        print(f"{i}. {preference}")
-                                    while True:
-                                        
-                                        preference_num = input("Enter the number of preferred gender (or 'done' to finish): ")
-                                        if not selected_preferences and preference_num.lower() == 'done':
-                                            print("Error: Enter atleast one Gender Preference. \n ")
-                                        else:
-                                            if preference_num.lower() == 'done':
-                                                break
-                                            try:
-                                                preference_index = int(preference_num) - 1
-                                                if preference_index < 0 or preference_index >= len(add_preferences):
-                                                    raise ValueError
-                                                selected_preference = add_preferences[preference_index]
-                                                if selected_preference in selected_preferences:
-                                                    print("You have already selected this interest. \n")
-                                                else:
-                                                    selected_preferences.append(selected_preference)
-                                                    existing_preferences_list.append(selected_preference)
-                                                    print("Preferences updated successfully! \n")
-                                                    if set(selected_preferences) == set(add_preferences):
-                                                        print("You have selected all possible preferences. \n")
-                                                        print("Preferences updated successfully! \n")
-                                                        break
-                                            except ValueError:
-                                                print("Error: Please enter a valid interest number. \n")
-                                    updated_preferences = ','.join(existing_preferences_list)
-                                    db.update_user_info(user_id, "preferences", updated_preferences)
-                                       
-                            elif choice_in == '2':
-                                val = val + 1
-                                if remove_preferences == []:
-                                    print("No new preferences to remove. \n")
-                                else:
-                                    print("Current Gender Preferences for Removing:")
-                                    selected_preferences = []
-                                    for i, preference in enumerate(remove_preferences, 1):
-                                        print(f"{i}. {preference}")
-                                    while True:
-                                        preference_num = input("Enter the number of an interest (or 'done' to finish): ")
-                                        if not selected_preferences and preference_num.lower() == 'done':
-                                            print("Error: Enter atleast one interest. \n")
-                                        else:
-                                            if preference_num.lower() == 'done':
-                                                break
-                                            try:
-                                                preference_index = int(preference_num) - 1
-                                                if preference_index < 0 or preference_index >= len(remove_preferences):
-                                                    raise ValueError
-                                                selected_preference = remove_preferences[preference_index]
-                                                if selected_preference in selected_preferences:
-                                                    print("You have already selected this preferred gender. \n")
-                                                else:
-                                                    existing_preferences_list.remove(selected_preference)
-                                                    selected_preferences.append(selected_preference)
-                                                    print("Preferred gender removed successfully! \n")
-                                                    if set(selected_preferences) == set(remove_preferences):
-                                                        print("You have selected all possible preferences. \n")
-                                                        print("Preferred gender removed successfully! \n")
-                                                        break
-                                            except ValueError:
-                                                print("Error: Please enter a valid preference number. \n")
-                                    updated_preferences = ','.join(existing_preferences_list)
-                                    db.update_user_info(user_id, "preferences", updated_preferences)
-                                    
-                            else:
-                                print("Invalid choice")
                         elif field == '7':
                             val = val + 1
                             while True:
+                                genderpreferences = input("Enter your new gender preference? (male or female or no preference): ")
+                                if genderpreferences.lower() == "male" or genderpreferences.lower() == "female" or genderpreferences.lower() == "no preference":
+                                    if genderpreferences == user_info[0][12]:
+                                        print("No changes made. \n")
+                                        break
+                                    else:
+                                        db.update_user_info(user_id, "genderpreferences", genderpreferences)
+                                        print("Gender preference updated successfully! \n")
+                                        break
+                                else:
+                                    # Handle invalid input
+                                    print("Error: please enter 'male' or 'female' or 'no preference'. \n")
+                       
+                        elif field == '8':
+                            val = val + 1
+                            while True:
                                 bio = input("Enter new bio (max 100 characters): ")
-                                if bio == user_info[0][12]:
+                                if bio == user_info[0][13]:
                                     print("No changes made. \n")
                                     break
                                 if len(bio) <= 100:
@@ -599,7 +536,7 @@ class Profile:
                                     break
                                 else:
                                     print("Bio should be 100 characters or less. \n")
-                        elif field == '8':
+                        elif field == '9':
                             Profile()
                             break
                         else:
