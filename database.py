@@ -17,6 +17,35 @@ class Database:
             self.curr = self.conn.cursor()
         except:
             print("Failed")
+    def createUnderage(self):
+        '''
+            Method for Creating Table in Database
+        '''
+        create_table_underage = '''
+            CREATE TABLE IF NOT EXISTS cred_under(
+                id Integer PRIMARY KEY AUTOINCREMENT,
+                firstname TEXT NOT NULL,
+                lastname TEXT NOT NULL,
+                email TEXT NOT NULL,
+                age TEXT NOT NULL
+            );
+        '''
+
+        self.curr.execute(create_table_underage)
+        self.conn.commit()
+    def insertDataUnder(self, datav):
+
+        '''
+            Method for Inserting Data in Table in Database
+        '''
+
+        insert_data_under = """
+            INSERT INTO cred_under(firstname, lastname, email, age)
+            VALUES(?, ?, ?, ?);
+        """
+        self.curr.execute(insert_data_under, datav)
+        self.conn.commit()
+
 
     def createTable(self):
 
@@ -27,6 +56,9 @@ class Database:
         create_table = '''
             CREATE TABLE IF NOT EXISTS cred(
                 id Integer PRIMARY KEY AUTOINCREMENT,
+                firstname TEXT NOT NULL,
+                lastname TEXT NOT NULL,
+                email TEXT NOT NULL,
                 username TEXT NOT NULL,
                 password TEXT NOT NULL,
                 age TEXT,
@@ -41,7 +73,6 @@ class Database:
 
         self.curr.execute(create_table)
         self.conn.commit()
-
     def insertData(self, data):
 
         '''
@@ -49,8 +80,8 @@ class Database:
         '''
 
         insert_data = """
-            INSERT INTO cred(username, password, age, interests, height, smoking, drinking, preferences, bio)
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?);
+            INSERT INTO cred(firstname, lastname, email, username, password, age, interests, height, smoking, drinking, preferences, bio)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         """
         self.curr.execute(insert_data, data)
         self.conn.commit()
@@ -86,11 +117,10 @@ class Database:
 
         self.curr.execute(validate_data, data)
         row = self.curr.fetchall()
-        returnVal = 0
         if not row:
             return None
-        elif row[0][1] == inputData[0]:
-            if row[0][2] == bcrypt.hashpw(inputData[1].encode(), row[0][2]):
+        elif row[0][4] == inputData[0]:
+            if row[0][5] == bcrypt.hashpw(inputData[1].encode(), row[0][5]):
                 return True
             else:
                 return False    
@@ -104,7 +134,26 @@ class Database:
         user = self.curr.fetchall()
         print(user)
         return user
- 
+    def searchEmail(self,user_email):
+        get_user_by_email = '''
+            SELECT * FROM cred WHERE email = (?);
+        '''
+        self.curr.execute(get_user_by_email, user_email)
+
+        rows = self.curr.fetchall()
+        if rows == []:
+            return 1
+        return 0
+    def searchEmailUnderage(self,user_email):
+        get_user_by_email = '''
+            SELECT * FROM cred_under WHERE email = (?);
+        '''
+        self.curr.execute(get_user_by_email, user_email)
+
+        rows = self.curr.fetchall()
+        if rows == []:
+            return 1
+        return 0
     def update_user_info(self, username, field, new_value):
         '''
         Update a specific field for a given username in the cred table
