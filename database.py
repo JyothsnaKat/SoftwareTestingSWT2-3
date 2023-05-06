@@ -166,7 +166,7 @@ class Database:
             Method for Retrieving Sent Requests for a User
         '''
         sent_requests = """
-            SELECT request.to_user_id, (cred.firstname || ' ' || cred.lastname) AS full_name, cred.interests, cred.height, cred.genderpreferences, cred.bio 
+            SELECT request.to_user_id, (cred.firstname || ' ' || cred.lastname) AS full_name, cred.interests, cred.height, cred.genderpreferences, cred.bio, request.status
             FROM request 
             INNER JOIN cred 
             ON request.to_user_id = cred.username 
@@ -176,57 +176,103 @@ class Database:
         rows = self.curr.fetchall()
         if rows:
             table = PrettyTable()
-            table.field_names = ["ID", "Name", "Interests", "Height", "Preferences", "Bio"]
-            print("Sent Requests:")
+            table.field_names = ["ID", "Name", "Interests", "Height", "Preferences", "Bio","Status"]
             for row in rows:
-                table.add_row([row[0], row[1], row[2], f"{row[3]}cm", row[4], row[5][:25]])
-            print(table)
-        return rows
+                table.add_row([row[0], row[1], row[2], f"{row[3]}cm", row[4], row[5][:25], row[6]])
+            return table
+        return None
 
+    def getUserDetails(self, username):
+        """
+            Method to get user details by username
+        """
+        sql_query = "SELECT * FROM cred WHERE username = ?"
+        self.curr.execute(sql_query, (username,))
+        row = self.curr.fetchone()
+        return row
+
+
+    # def getReceivedRequests(self, to_user_id):
+    #     '''
+    #     Method for Retrieving Received Requests for a User
+    #     '''
+    #     received_requests = """
+    #         SELECT request.to_user_id, (cred.firstname || ' ' || cred.lastname) AS full_name, cred.interests, 
+    #         cred.height, cred.genderpreferences, cred.bio, request.status
+    #         FROM request 
+    #         INNER JOIN cred 
+    #         ON request.to_user_id = cred.username 
+    #         WHERE request.from_user_id = (?) AND request.status = 'Pending';
+    #     """
+    #     self.curr.execute(received_requests, (to_user_id,))
+    #     rows = self.curr.fetchall()
+    #     if rows:
+    #         table = PrettyTable()
+    #         table.field_names = ["ID", "Name", "Interests", "Height", "Preferences", "Bio","Status"]
+    #         for row in rows:
+    #             table.add_row([row[0], row[1], row[2], f"{row[3]}cm", row[4], row[5][:25], row[6]])
+
+    #         print(table)
+    #     return rows
+  
     def getReceivedRequests(self, to_user_id):
         '''
             Method for Retrieving Received Requests for a User
         '''
         received_requests = """
-            SELECT request.from_user_id,  (cred.firstname || ' ' || cred.lastname)  AS full_name, cred.interests, cred.height, cred.genderpreferences, cred.bio, request.to_user_id
+            SELECT request.from_user_id,  (cred.firstname || ' ' || cred.lastname)  AS full_name, cred.interests, cred.height, cred.genderpreferences, cred.bio
             FROM request 
             INNER JOIN cred 
             ON request.from_user_id = cred.username 
-            WHERE request.to_user_id = (?);
+            WHERE request.to_user_id = (?) AND request.status = '0';
         """
         self.curr.execute(received_requests, (to_user_id,))
         rows = self.curr.fetchall()
         if rows:
             table = PrettyTable()
             table.field_names = ["ID", "Name", "Interests", "Height", "Preferences", "Bio"]
-            print("Received Requests:")
+            requests_dict = {}
             for row in rows:
                 table.add_row([row[0], row[1], row[2], f"{row[3]}cm", row[4], row[5][:25]])
-            print(table)
-        return rows
+                requests_dict[row[0]] = row
+            return table, requests_dict
+        return None, None
 
-    def acceptRequest(self, request_id):
-        '''
-            Method for Accepting Friend Request
-        '''
-        accept_request = """
-            UPDATE request 
-            SET status = 1 
-            WHERE id = (?);
+
+
+
+
+
+
+    def acceptRequest(self, from_user_id, to_user_id):
         """
-        self.curr.execute(accept_request, (request_id,))
+        Method for accepting friend request
+        """
+        # Update status in request table
+        self.curr.execute("UPDATE request SET status='Accepted' WHERE from_user_id=? AND to_user_id=?", 
+                            (from_user_id, to_user_id))
         self.conn.commit()
 
-    def rejectRequest(self, request_id):
-        '''
-            Method for Rejecting Friend Request
-        '''
-        reject_request = """
-            DELETE FROM request 
-            WHERE id = (?);
-        """
-        self.curr.execute(reject_request, (request_id,))
+        # Insert new row in matches table
+        self.curr.execute("INSERT INTO matches (user1_id, user2_id) VALUES (?, ?)", 
+                            (to_user_id, from_user_id))
         self.conn.commit()
+        # Delete the request from the request table
+        self.curr.execute("DELETE FROM request WHERE from_user_id=? AND to_user_id=?", 
+                            (from_user_id, to_user_id))
+        self.conn.commit()
+
+
+    def rejectRequest(self, from_user_id, to_user_id):
+        """
+        Method for rejecting friend request
+        """
+        # self.curr.execute("UPDATE request SET status='Rejected' WHERE from_user_id=? AND to_user_id=?", (from_user_id, to_user_id))
+    
+        # Delete rejected request from request table        
+        self.curr.execute("DELETE FROM request WHERE from_user_id=? AND to_user_id=?", (from_user_id, to_user_id))
+        self.conn.commit()
+
     def fetchData(self, user_id):
         get_user_by_id = '''
             SELECT * FROM cred WHERE username = (?);
