@@ -5,6 +5,8 @@ from database import Database
 import sys
 import random
 import string
+from search import Search
+
 db = Database()
 db.createTable()
 db.createUnderage()
@@ -35,7 +37,8 @@ class Login:
         returnVal = db.validateData(data, inputData)
         if returnVal == True:
             print("Logged In Successfully")
-            user_id = db.getUserId(self.username)
+            #Did not need this because you are already validating it. We can reuse self.username
+            #user_id = db.getUserId(self.username)
             while True:
                 print("1. Search")
                 print("2. View Matches")
@@ -44,14 +47,23 @@ class Login:
                 print("5. Log out")
                 secondOption = input("Enter Your Option: ")
                 if re.search("[0-9]", secondOption):
-                    if secondOption == '4':
+                    if secondOption == '1':
+                        while True:
+                            search=Search()
+                            searchResults = db.search(self.username,search.min_age,search.max_age,search.interests,search.min_height,search.smoking_preference,search.drinking_preference)
+                            ret_value = search.view(searchResults,self.username)
+                            if ret_value == 2:
+                                continue
+                            elif ret_value == 3:
+                                break
+                    elif secondOption == '4':
                         profile = Profile()
                         profile.update()
                     elif secondOption == '2':
-                        view_matches = ViewMatches(user_id)
+                        view_matches = ViewMatches(self.username)
                         view_matches.view()
                     elif secondOption == '3':
-                        view_requests = ViewRequests(user_id)
+                        view_requests = ViewRequests(self.username)
                         view_requests.view()
                     elif secondOption == '5':
                         print("Bye Bye!! Come back to us!! Happy dating!! \n\n")
