@@ -2,7 +2,7 @@
 
 import sqlite3
 import bcrypt
-
+from prettytable import PrettyTable
 
 class Database:
     '''
@@ -62,11 +62,12 @@ class Database:
                 username TEXT NOT NULL,
                 password TEXT NOT NULL,
                 age TEXT,
+                gender TEXT,
                 interests TEXT,
-                height TEXT,
+                height FLOAT(2),
                 smoking TEXT,
                 drinking TEXT,
-                preferences TEXT,
+                genderpreferences TEXT,
                 bio TEXT 
             );
         '''
@@ -102,8 +103,8 @@ class Database:
         '''
 
         insert_data = """
-            INSERT INTO cred(firstname, lastname, email, username, password, age, interests, height, smoking, drinking, preferences, bio)
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+            INSERT INTO cred(firstname, lastname, email, username, password, age, gender, interests, height, smoking, drinking, genderpreferences, bio)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         """
         self.curr.execute(insert_data, data)
         self.conn.commit()
@@ -165,7 +166,7 @@ class Database:
             Method for Retrieving Sent Requests for a User
         '''
         sent_requests = """
-            SELECT request.id, cred.username, cred.interests, cred.height, cred.preferences, cred.bio, request.status 
+            SELECT request.id, cred.username, cred.interests, cred.height, cred.genderpreferences, cred.bio, request.status 
             FROM request 
             INNER JOIN cred 
             ON request.to_user_id = cred.username 
@@ -174,10 +175,12 @@ class Database:
         self.curr.execute(sent_requests, (from_user_id,))
         rows = self.curr.fetchall()
         if rows:
+            table = PrettyTable()
+            table.field_names = ["ID", "Name", "Interests", "Height", "Preferences", "Bio", "Status"]
             print("Sent Requests:")
-            print("ID\tName\t\tInterests\tHeight\t\tPreferences\tBio\t\t\t\tStatus")
             for row in rows:
-                print(f"{row[0]}\t{row[1]}\t{row[2]}\t{row[3]}cm\t{row[4]}\t{row[5][:25]}\t\t{row[6]}")
+                table.add_row([row[0], row[1], row[2], f"{row[3]}cm", row[4], row[5][:25], row[6]])
+            print(table)
         return rows
 
     def getReceivedRequests(self, to_user_id):
@@ -302,3 +305,77 @@ class Database:
         """
         self.curr.execute(matches_query, (user_id, user_id))
         return self.curr.fetchall()
+
+    def search(self,userID, min_age, max_age, interests, min_height, smoking_preference, drinking_preference):
+        """
+            Method for Searching Data in Table in Database
+            @param age_range: str - age range in the format 'min-max'
+            @param interests: list - list of selected interests
+            @param min_height: int - minimum height preferred (in cm)
+            @param smoking_preference: str - smoking preference ('yes', 'no', or 'na' for no preference)
+            @param drinking_preference: str - drinking preference ('yes', 'no', or 'na' for no preference)
+            @return: list - list of rows matching the search criteria
+        """
+        #sub query to remove the users to which the request has already been sent.
+        exclude_query = '''
+            SELECT to_user_id FROM request WHERE from_user_id = ? 
+        '''
+        self.curr.execute(exclude_query, (userID,))
+        exclude_usernames = [row[0] for row in self.curr.fetchall()]
+
+        #Adding own user name so that we exclude our profile while searching.
+        exclude_usernames.append(userID)
+
+        #Main query to search based on preferences
+        search_query = '''
+            SELECT * FROM cred 
+            WHERE age BETWEEN ? AND ? 
+            AND height >= ?
+            AND username NOT IN ({})
+            {} {} {} {}
+        '''
+        #user names whose profiles we do not want to fetch
+        exclude_usernames_str = ', '.join([f'"{username}"' for username in exclude_usernames])
+
+        #Query to fetch the gender the user prefers to search
+        get_user_preferences = '''
+            SELECT genderpreferences FROM cred WHERE username = (?);
+        '''
+        self.curr.execute(get_user_preferences, (userID,))
+        gender = self.curr.fetchone()[0]
+        gender_condition = ''
+        if gender != "na":
+            gender_condition = f'AND gender = "{gender}"'
+
+        #params will contain the parameters required for the query to run. It basically replaces the ? in the query
+        params = [min_age, max_age, min_height]
+
+        #Joining the interests in the form 'AND interests like cricket AND interests like swimming' and adding it to the param list
+        interests_query = ' '.join([f'AND interests LIKE ?' for _ in interests])
+        params+= [f'%{interest}%' for interest in interests]
+
+        #Smoking and drinking conditions for the query
+        smoking_preference_condition = ''
+        drinking_preference_condition = ''
+
+        if smoking_preference.lower() == "yes":
+            smoking_preference_condition = 'AND smoking = "yes"'
+        elif smoking_preference.lower() == "no":
+            smoking_preference_condition = 'AND smoking = "no"'
+
+        if drinking_preference.lower() == "yes":
+            drinking_preference_condition = 'AND drinking = "yes"'
+        elif drinking_preference.lower() == "no":
+            drinking_preference_condition = 'AND drinking = "no"'
+
+        #Formating the search query to include all preferences
+        if smoking_preference.lower() == "na" and drinking_preference.lower() == "na" and gender == "na":
+            search_query = search_query.format(exclude_usernames_str,interests_query, '', '','')
+        else:
+            search_query = search_query.format(exclude_usernames_str,interests_query, smoking_preference_condition, drinking_preference_condition,gender_condition)
+        
+        self.curr.execute(search_query, params)
+
+        rows = self.curr.fetchall()
+
+        return rows
