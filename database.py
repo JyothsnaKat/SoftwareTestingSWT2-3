@@ -166,7 +166,7 @@ class Database:
             Method for Retrieving Sent Requests for a User
         '''
         sent_requests = """
-            SELECT request.id, cred.username, cred.interests, cred.height, cred.genderpreferences, cred.bio, request.status 
+            SELECT request.to_user_id, (cred.firstname || ' ' || cred.lastname) AS full_name, cred.interests, cred.height, cred.genderpreferences, cred.bio 
             FROM request 
             INNER JOIN cred 
             ON request.to_user_id = cred.username 
@@ -176,10 +176,10 @@ class Database:
         rows = self.curr.fetchall()
         if rows:
             table = PrettyTable()
-            table.field_names = ["ID", "Name", "Interests", "Height", "Preferences", "Bio", "Status"]
+            table.field_names = ["ID", "Name", "Interests", "Height", "Preferences", "Bio"]
             print("Sent Requests:")
             for row in rows:
-                table.add_row([row[0], row[1], row[2], f"{row[3]}cm", row[4], row[5][:25], row[6]])
+                table.add_row([row[0], row[1], row[2], f"{row[3]}cm", row[4], row[5][:25]])
             print(table)
         return rows
 
@@ -188,7 +188,7 @@ class Database:
             Method for Retrieving Received Requests for a User
         '''
         received_requests = """
-            SELECT request.id, cred.username, cred.interests, cred.height, cred.preferences, cred.bio, request.status, request.to_user_id
+            SELECT request.from_user_id,  (cred.firstname || ' ' || cred.lastname)  AS full_name, cred.interests, cred.height, cred.genderpreferences, cred.bio, request.to_user_id
             FROM request 
             INNER JOIN cred 
             ON request.from_user_id = cred.username 
@@ -197,10 +197,12 @@ class Database:
         self.curr.execute(received_requests, (to_user_id,))
         rows = self.curr.fetchall()
         if rows:
+            table = PrettyTable()
+            table.field_names = ["ID", "Name", "Interests", "Height", "Preferences", "Bio"]
             print("Received Requests:")
-            print("ID\tName\t\tInterests\tHeight\t\tPreferences\tBio\t\t\t\tStatus")
             for row in rows:
-                print(f"{row[0]}\t{row[1]}\t{row[2]}\t{row[3]}cm\t{row[4]}\t{row[5][:25]}\t\t{row[6]}")
+                table.add_row([row[0], row[1], row[2], f"{row[3]}cm", row[4], row[5][:25]])
+            print(table)
         return rows
 
     def acceptRequest(self, request_id):
@@ -291,7 +293,7 @@ class Database:
             Method for Retrieving Matches for a User
         '''
         matches_query = """
-            SELECT c.id, c.username, c.age, c.interests, c.height, c.smoking, c.drinking, c.preferences, c.bio
+            SELECT c.id, c.username, c.age, c.interests, c.height, c.smoking, c.drinking, c.genderpreferences, c.bio
             FROM cred c
             WHERE c.username IN (
                 SELECT m.user2_id 
