@@ -339,7 +339,7 @@ class Database:
             Method for Retrieving Matches for a User
         '''
         matches_query = """
-            SELECT c.id, c.username, c.age, c.interests, c.height, c.smoking, c.drinking, c.genderpreferences, c.bio
+            SELECT c.id, c.firstname || c.lastname as full_name, c.username, c.age, c.interests, c.height, c.smoking, c.drinking, c.genderpreferences, c.bio
             FROM cred c
             WHERE c.username IN (
                 SELECT m.user2_id 
@@ -399,8 +399,10 @@ class Database:
         params = [min_age, max_age, min_height]
 
         #Joining the interests in the form 'AND interests like cricket AND interests like swimming' and adding it to the param list
-        interests_query = ' '.join([f'AND interests LIKE ?' for _ in interests])
-        params+= [f'%{interest}%' for interest in interests]
+        interests_query = ''
+        if interests:
+            interests_query = ' '.join([f'AND interests LIKE ?' for _ in interests])
+            params+= [f'%{interest}%' for interest in interests]
 
         #Smoking and drinking conditions for the query
         smoking_preference_condition = ''
