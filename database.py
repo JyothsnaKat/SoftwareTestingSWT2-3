@@ -351,8 +351,10 @@ class Database:
         params = [min_age, max_age, min_height]
 
         #Joining the interests in the form 'AND interests like cricket AND interests like swimming' and adding it to the param list
-        interests_query = ' '.join([f'AND interests LIKE ?' for _ in interests])
-        params+= [f'%{interest}%' for interest in interests]
+        interests_query = ''
+        if interests:
+            interests_query = ' '.join([f'AND interests LIKE ?' for _ in interests])
+            params+= [f'%{interest}%' for interest in interests]
 
         #Smoking and drinking conditions for the query
         smoking_preference_condition = ''
