@@ -128,13 +128,13 @@ class Register:
                 break
         #email address
         while True:
-            pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+            pattern = r'^[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+\.[a-zA-Z]+(\.[a-zA-Z]+)*$'
             self.email = input("Enter your email address: ")
             if re.match(pattern, self.email):
                #do nothing
                break
             else:
-                print("Error: Invalid email address. \n")
+                print("Error: Invalid email address. Mail should start with alphanumeric and can contain alphabets, digits and period only. \n")
         data = (self.email,)
         result = db.searchEmail(data)
         if result != 0:
@@ -148,8 +148,10 @@ class Register:
             try:
                 self.age = int(input("Enter Your age: "))
                 if self.age < 0:
-                    print("Error: Please enter a valid number. \n")
+                    print("Error: Please enter a valid age. \n")
                     val = val + 1
+                if self.age >= 100:
+                    print("Error: Please enter age less than 100")
                 if self.age > 0 and self.age < 18:
                     data = (self.email,)
                     check = db.searchEmailUnderage(data)
@@ -268,8 +270,8 @@ class Register:
         #end of smoking
         #begin of preferences
         while True:
-            self.genderpreferences = input("What is your gender preference? (male or female or no preference): ")
-            if self.genderpreferences.lower() == "male" or self.genderpreferences.lower() == "female" or self.genderpreferences.lower() == "no preference":
+            self.genderpreferences = input("What is your gender preference? (male or female or na for no preference): ")
+            if self.genderpreferences.lower() == "male" or self.genderpreferences.lower() == "female" or self.genderpreferences.lower() == "na":
                 break
             else:
                 # Handle invalid input

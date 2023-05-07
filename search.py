@@ -85,6 +85,7 @@ class Search():
             else:
                 print("Error: Please enter 'yes' or 'no' or 'na'")
 
+
     def view(self,data,userID):
         flag = 0
         # Prompt user for input
@@ -113,9 +114,24 @@ class Search():
                 table.field_names = ["User ID", "User Name", "Age"]
                 for result in data:
                     table.add_row([result[4], result[1]+" "+result[2],result[6]])
+                table_score = PrettyTable()
+                table_score.field_names = ["User ID", "User Name", "Age", "Score"]
+                for result in data:
+                    #compatability logic
+                    score = 0
+                    data1 = (userID,)
+                    user_info = db.fetchData(data1)
+                    #if result[12] == user_info[0][12]:
+                       # score = score + 1
+                    user1_interests = set(user_info[0][8].split(','))
+                    user2_interests = set(result[8].split(','))
+                    interests_in_common = user1_interests.intersection(user2_interests)
+                    score += len(interests_in_common)
+                    #compatability end
+                    table_score.add_row([result[4], result[1]+" "+result[2],result[6], score])
                 if not flag:
                     print("\nBased on your preferred gender and other preferences you entered just now, here is a list of potential matches:")
-                    print(table)
+                    print(table_score)
                     print("\n")
                     #user prompted to either view profile, search again or go back to the main menu
                     print("1. View Profile")
