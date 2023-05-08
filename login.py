@@ -317,9 +317,8 @@ class ViewRequests:
     def view(self):
         
         
-        # if not received_requests and not sent_requests:
-        #     print("you have no requests, Start searching !!")
-        # else:
+        
+        
             while True:
                 print("1. Sent Requests")
                 print("2. Received Requests")
@@ -328,17 +327,26 @@ class ViewRequests:
                 if option == '1':
                     sent_requests = db.getSentRequests(self.user_id)
                     if not sent_requests:
-                        print("You haven't sent any requests yet.")
+                        print("You haven't sent any requests.")
                     else:
+                        print("")
                         print("Sent friend requests:")
                         print(sent_requests)
+                        while True:
+                            exitvariable = input("Enter 'back' to go back to the list: ")
+                            if re.search(r'\bback\b', exitvariable, re.IGNORECASE):
+                                break
+                            else:
+                                print("Invalid option")
+                            break     
 
                                 
                 elif option == '2':
                     while True:
                         received_requests, requests_dict = db.getReceivedRequests(self.user_id)
                         if not received_requests:
-                            print("You don't have any received requests yet.")
+                            print("")
+                            print("You don't have any received requests.")
                             break
                             
                         else:
@@ -349,17 +357,24 @@ class ViewRequests:
                                 break
                             else:
                                 if req_id in requests_dict:                       
-                                    
-                                    choice = input("Do you want to accept or reject the request? (a/r): ")
-                                    if choice.lower() == 'a':
-                                        db.acceptRequest(req_id, self.user_id)
-                                        
-                                        print("Friend request accepted.")
-                                    elif choice.lower() == 'r':
-                                        db.rejectRequest(req_id, self.user_id)
-                                        print("Friend request rejected.")
-                                    else:
-                                        print("Invalid choice.")
+                                    while True:
+                                        choice = input("Do you want to accept or reject the request? (a/r): ")
+                                        if choice.lower() == 'a':
+                                            db.acceptRequest(req_id, self.user_id)                                            
+                                            print("Friend request accepted.")
+                                            while True:
+                                                go_back = input("Enter 'back' to go back to the list:" )
+                                                if re.search(r'\bback\b', go_back, re.IGNORECASE):
+                                                    break
+                                                else:
+                                                    print("Invalid Option")
+                                            break
+                                        elif choice.lower() == 'r':
+                                            db.rejectRequest(req_id, self.user_id)
+                                            print("Friend request rejected.")
+                                            break
+                                        else:
+                                            print("Invalid choice.")
                                 else:
                                     print("Inavlid ID")
                 elif option == '3':
@@ -379,34 +394,58 @@ class ViewMatches:
         matches = db.getMatches(self.user_id)
         if not matches:
             print("You have no matches.")
+            print("")
         else:
             print("Your matches:")
+            table = PrettyTable()
+            table.field_names = ["ID", "Name" , "Age" , "Bio"]
+            usernames = []
             for m in matches:
-                print(f"{m[0]}. {m[1]}")
+                table.add_row([m[2], m[1], m[3], m[9]])
+                usernames.append(m[2])  # Add the username to the list
+            print(table.get_string(fields=["ID", "Name", "Age", "Bio"]))
 
-        while True:
-            print("1. View Profile")
-            print("2. Go Back")
-            user_input = input("Your choice: ")
-            if re.search("[0-9]", user_input):
-                # View profile
-                if user_input == '1':
-                    user_id = input("Please enter the user ID of the profile you want to view:")
-                    row = db.getUserDetails(user_id)
-                    if row:
-                        profile = PrettyTable()
-                        profile.field_names = ["User ID", "User Name", "Age", "Interests", "Height", "Smoking", "Drinking",
-                                               "Bio"]
-                        profile.add_row([row[4], row[1] + " " + row[2], row[6], row[8], row[9], row[10], row[11], row[12]])
-                        print(profile)
+            
+            while True:
+                print("")
+                print("Please choose an option")
+                print("")
+                print("1. View Profile")
+                print("2. Go Back")
+                user_input = input("Your choice: ")
+            
+                if re.search("[0-9]", user_input):
+                 # View profile
+                    if user_input == '1':
+                        while True:
+                            print("")
+                            user_id = input("Please enter the user ID of the profile you want to view or enter 'back' to go to the: ")
+                            if re.search(r'\bback\b', user_id, re.IGNORECASE):
+                                break
+                            elif user_id in usernames:
+                                row = db.getUserDetails(user_id)
+                                if row:
+                                    profile = PrettyTable()
+                                    profile.field_names = ["ID", "Name", "Age", "Interests", "Height", "Smoking", "Drinking", "Bio"]
+                                    profile.add_row([row[4], row[1] + " " + row[2], row[6], row[8], row[9], row[10], row[11], row[12]])
+                                    print(profile)
+                                    while True:
+                                        go_back = input("Enter 'back' to go back to the list: ")
+                                        if re.search(r'\bback\b', go_back, re.IGNORECASE):
+                                            break
+                                        else:
+                                            print("Invalid option. Please try again.")
+                                else:
+                                    print("No user found with this ID.")
+                            else:
+                                print("Invalid user ID. Please try again.")
+                            
+                    elif user_input == '2':
+                        break
                     else:
-                        print("No user found with this ID.")
-                elif user_input == '2':
-                    break
-                else:
-                    print("Error: Wrong Input..\n\n")
-                    continue
-
+                        print("Error: Wrong Input..\n\n")
+                        continue
+                      
                 
 
 

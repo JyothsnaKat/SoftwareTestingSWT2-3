@@ -339,7 +339,7 @@ class Database:
             Method for Retrieving Matches for a User
         '''
         matches_query = """
-            SELECT c.id, c.username, c.age, c.interests, c.height, c.smoking, c.drinking, c.genderpreferences, c.bio
+            SELECT c.id, c.firstname || c.lastname as full_name, c.username, c.age, c.interests, c.height, c.smoking, c.drinking, c.genderpreferences, c.bio
             FROM cred c
             WHERE c.username IN (
                 SELECT m.user2_id 
