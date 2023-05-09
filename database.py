@@ -13,7 +13,6 @@ class Database:
     def __init__(self):
         try:
             self.conn = sqlite3.connect("test.db")
-            print("Successfully connected to the system")
             self.curr = self.conn.cursor()
         except:
             print("Failed")
@@ -279,7 +278,7 @@ class Database:
         '''
         self.curr.execute(get_user_by_id, user_id)
         user = self.curr.fetchall()
-        print(user)
+        #print(user)
         return user
     def searchEmail(self,user_email):
         get_user_by_email = '''
