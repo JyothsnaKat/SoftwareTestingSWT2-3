@@ -46,7 +46,7 @@ class Login:
                 print("1. Search")
                 print("2. View Matches")
                 print("3. View Requests")
-                print("4. View Profile")
+                print("4. My Profile")
                 print("5. Log out")
                 secondOption = input("Enter Your Option: ")
                 if re.search("[0-9]", secondOption):
