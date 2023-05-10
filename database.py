@@ -165,7 +165,7 @@ class Database:
             Method for Retrieving Sent Requests for a User
         '''
         sent_requests = """
-            SELECT request.to_user_id, (cred.firstname || ' ' || cred.lastname) AS full_name, cred.interests, cred.height, cred.genderpreferences, cred.bio, request.status, cred.age
+            SELECT request.to_user_id, (cred.firstname || ' ' || cred.lastname) AS full_name, cred.interests, cred.height, cred.genderpreferences, cred.bio, request.status
             FROM request 
             INNER JOIN cred 
             ON request.to_user_id = cred.username 
@@ -175,9 +175,9 @@ class Database:
         rows = self.curr.fetchall()
         if rows:
             table = PrettyTable()
-            table.field_names = ["User ID", "Name", "Age", "Interests", "Height", "Preferences", "Bio","Status"]
-            for row in rows:             
-                table.add_row([row[0], row[1], row[7], row[2], f"{row[3]}cm", row[4], row[5][:25], "Accepted" if row[6] == 1 else "Pending"])
+            table.field_names = ["ID", "Name", "Interests", "Height", "Preferences", "Bio","Status"]
+            for row in rows:
+                table.add_row([row[0], row[1], row[2], f"{row[3]}cm", row[4], row[5][:25], row[6]])
             return table
         return None
 
@@ -219,7 +219,7 @@ class Database:
             Method for Retrieving Received Requests for a User
         '''
         received_requests = """
-            SELECT request.from_user_id,  (cred.firstname || ' ' || cred.lastname)  AS full_name, cred.interests, cred.height, cred.genderpreferences, cred.bio, cred.age
+            SELECT request.from_user_id,  (cred.firstname || ' ' || cred.lastname)  AS full_name, cred.interests, cred.height, cred.genderpreferences, cred.bio
             FROM request 
             INNER JOIN cred 
             ON request.from_user_id = cred.username 
@@ -229,15 +229,13 @@ class Database:
         rows = self.curr.fetchall()
         if rows:
             table = PrettyTable()
+            table.field_names = ["ID", "Name", "Interests", "Height", "Preferences", "Bio"]
             requests_dict = {}
-            table.field_names = ["User ID", "Name", "Age"]
             for row in rows:
-                table.add_row([row[0], row[1], row[6]])
+                table.add_row([row[0], row[1], row[2], f"{row[3]}cm", row[4], row[5][:25]])
                 requests_dict[row[0]] = row
-            
             return table, requests_dict
         return None, None
-            
 
 
 
