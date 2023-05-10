@@ -25,7 +25,7 @@ class Search():
                     self.max_age = int(match.group(2))
                     if self.min_age < 18 or self.max_age > 100:
                         raise ValueError(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid age range between 18 and 100.")
-                    elif self.min_age > self.max_age:
+                    elif self.min_age > self.max_age or self.min_age == self.max_age:
                         raise ValueError(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid age range in the format 'min-max'(e.g. 20-30).")
                     break
                 else:
@@ -68,11 +68,11 @@ class Search():
         while True:
             try:
                 self.min_height = int(input("Enter the minimum height preferred (in cm): "))
-                if self.min_height < 0 or self.min_height > 300:
+                if self.min_height < 55 or self.min_height > 300:
                     raise ValueError
                 break
             except ValueError:
-                print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid height between 0 and 300 cm.")
+                print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid height between 55 and 300 cm.")
         while True:
             self.smoking_preference = input("Enter your smoking preference 'yes' or 'no' or 'na' for no preference: ")
             if self.smoking_preference.lower() == "yes" or self.smoking_preference.lower() == "no" or self.smoking_preference.lower() == "na":
@@ -112,7 +112,7 @@ class Search():
             #displaying all search results in a table
             else:
                 table = PrettyTable()
-                table.field_names = ["Username", "Name", "Age"]
+                table.field_names = ["User ID", "Name", "Age"]
                 for result in data:
                     table.add_row([result[4], result[1]+" "+result[2],result[6]])
                 if not flag:
@@ -131,14 +131,14 @@ class Search():
                         flag=0
                         while True:
                             found = False
-                            user_id = input("Please enter the username of the profile you want to view:")
+                            user_id = input("Please enter the userID of the profile you want to view:")
                             if not any(result[4]==user_id for result in data):
-                                print(Fore.RED + "Error:" + Fore.RESET + "Please enter username from the list.\n")
+                                print(Fore.RED + "Error:" + Fore.RESET + "Please enter userID from the list.\n")
                                 continue
                             for result in data:
                                 if result[4]==user_id:
                                     profile = PrettyTable()
-                                    profile.field_names = ["Username", "Name", "Age", "Interests", "Height","Smoking","Drinking","Gender","Bio"]
+                                    profile.field_names = ["userID", "Name", "Age", "Interests", "Height","Smoking","Drinking","Gender","Bio"]
                                     profile.add_row([result[4],result[1]+" "+result[2],result[6],result[8],result[9],result[10],result[11],result[7],result[13]])
                                     print(profile)
                                     #Inside view profile to either send a request or go back to search results
@@ -149,7 +149,7 @@ class Search():
                                         if user_input == '1':
                                             db.sendRequest(userID,result[4])
                                             data = [d for d in data if d[4] != user_id]
-                                            print("Request sent successfully!")
+                                            print(Fore.GREEN + "Request sent successfully!"+Style.RESET_ALL)
                                             table.clear_rows()
                                             found=True
                                             break

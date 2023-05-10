@@ -636,7 +636,7 @@ class Profile:
                                     height = float(input("Enter new height: \n"))
                                     if height <= 0.0:
                                         raise ValueError
-                                    if self.height > 300.0:
+                                    if height > 300.0:
                                         print("Maximum height allowed is 300 centimeters \n ")
                                     if int(height) ==  user_info[0][9]:
                                         print("No changes made. \n")
