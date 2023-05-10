@@ -27,7 +27,7 @@ class Login:
     """
 
     def __init__(self):
-        self.username = input("Enter Your Username: ")
+        self.username = input("Enter Your User ID: ")
         self.password = getpass(prompt="Enter Your Password: ")
         global username 
         global password 
@@ -93,17 +93,23 @@ class Register:
 
     def __init__(self):
         # first name as input
-        pattern1 = r'^[a-zA-Z\']+$'
+        pattern1 = r"^(?!')(?!.*''.*$)[a-zA-Z']+"
+        pattern2 = r"''"
         while True:
             val = 0
             self.firstname = input("Enter Your First Name: ")
+           
             if re.match(pattern1, self.firstname):
-                val = val + 1
+                    val = val + 1
             else:
-                print(Fore.RED + "Error:" + Fore.RESET + "Invalid characters in First Name \n")
+                if self.firstname.startswith("'"):
+                    print(Fore.RED + "Error:" + Fore.RESET + "First name can't start with ' \n") 
+                elif re.search(pattern2, self.firstname):
+                    print(Fore.RED + "Error:" + Fore.RESET + "Consecutive ' found in first name. Please enter valid name. \n")
+                else:
+                    print(Fore.RED + "Error:" + Fore.RESET + "Invalid characters in First Name \n")
             if len(self.firstname) < 3:
-                print(Fore.RED + "Error:" + Fore.RESET + " First name should have more than three characters \n")
-                
+                print(Fore.RED + "Error:" + Fore.RESET + " First name should have more than three characters \n") 
             else:
                 val = val + 1
             if not self.firstname.strip():
@@ -129,13 +135,17 @@ class Register:
                 break
         #email address
         while True:
-            pattern = r'^[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+\.[a-zA-Z]+(\.[a-zA-Z]+)*$'
+            pattern = r"^(?![\d.])(?:[a-zA-Z0-9]+[.]?)+@[a-zA-Z0-9]+\.[a-zA-Z0-9]+$"
+            pattern1 = r'^.+@.+\..+$'
             self.email = input("Enter your email address: ")
             if re.match(pattern, self.email):
                #do nothing
                break
             else:
-                print(Fore.RED + "Error:" + Fore.RESET + " Invalid email address. Mail should start with alphanumeric and can contain alphabets, digits and period only. \n")
+                if re.search(pattern1,self.email):
+                    print(Fore.RED + "Error:" + Fore.RESET + " Invalid email address. Mail should start with alphabets only and can contain alphabets, digits and period. \n")
+                else:
+                    print(Fore.RED + "Error:" + Fore.RESET + "Please enter valid email address.")
         data = (self.email,)
         result = db.searchEmail(data)
         if result != 0:
@@ -149,7 +159,7 @@ class Register:
             flag = 2
             try:
                 self.age = int(input("Enter Your age: "))
-                if self.age < 0:
+                if self.age <= 0:
                     print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid age. \n")
                     val = val + 1
                 if self.age >= 100:
@@ -247,7 +257,9 @@ class Register:
                 if self.height <= 0.0:
                     raise ValueError
                 elif self.height > 300.0:
-                    print("Maximum height allowed is 300 centimeters \n ")
+                    print("Maximum height allowed is 300 centimeters. \n ")
+                elif self.height < 55.0:
+                    print("Minimum height allowed is 55 centimeters. \n")
                 else:
                     break
             except ValueError:
@@ -304,7 +316,7 @@ class Register:
                 data = (self.firstname, self.lastname, self.email, self.username, self.hashed, self.age, self.gender, self.interests, self.height, self.smoking, self.drinking, self.genderpreferences, self.bio )
                 result = db.insertData(data)
                 if result != 0:
-                    print("Account Successfully Created!!! Your username is:",  Fore.GREEN + self.username + Style.RESET_ALL)
+                    print("Account Successfully Created!!! Your User ID is:",  Fore.GREEN + self.username + Style.RESET_ALL)
                     break
                 else:
                     print(Fore.RED + "Error:" + Fore.RESET + "Sorry!! Try again later. \n")
@@ -355,7 +367,7 @@ class ViewRequests:
                         else:
                             print(received_requests)
 
-                            req_id = input("Enter username to accept/reject or type 'back' to go back: ")
+                            req_id = input("Enter User ID to accept/reject or type 'back' to go back: ")
                             if req_id.lower() == 'back':
                                 break
                             else:
@@ -380,7 +392,7 @@ class ViewRequests:
                                         else:
                                             print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid choice.")
                                 else:
-                                    print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid username from the list.")
+                                    print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid User ID from the list.")
                 elif option == '3':
                     break
                 else:
@@ -402,12 +414,12 @@ class ViewMatches:
         else:
             print("Your matches:")
             table = PrettyTable()
-            table.field_names = ["Username", "Name" , "Age" , "Bio"]
+            table.field_names = ["User ID", "Name" , "Age" , "Bio"]
             usernames = []
             for m in matches:
                 table.add_row([m[2], m[1], m[3], m[9]])
                 usernames.append(m[2])  # Add the username to the list
-            print(table.get_string(fields=["Username", "Name", "Age", "Bio"]))
+            print(table.get_string(fields=["User ID", "Name", "Age", "Bio"]))
 
             
             while True:
@@ -423,14 +435,14 @@ class ViewMatches:
                     if user_input == '1':
                         while True:
                             print("")
-                            user_id = input("Please enter the user name of the profile from the list you want to view or enter 'back' to go to the: ")
+                            user_id = input("Please enter the User ID from the list, you want to view or enter 'back' to go to the: ")
                             if re.search(r'\bback\b', user_id, re.IGNORECASE):
                                 break
                             elif user_id in usernames:
                                 row = db.getUserDetails(user_id)
                                 if row:
                                     profile = PrettyTable()
-                                    profile.field_names = ["Username", "Name", "Age", "Interests", "Height", "Smoking", "Drinking", "Bio"]
+                                    profile.field_names = ["User ID", "Name", "Age", "Interests", "Height", "Smoking", "Drinking", "Bio"]
                                     profile.add_row([row[4], row[1] + " " + row[2], row[6], row[8], row[9], row[10], row[11], row[12]])
                                     print(profile)
                                     while True:
@@ -440,9 +452,9 @@ class ViewMatches:
                                         else:
                                             print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid option.")
                                 else:
-                                    print("No user found with this username.")
+                                    print(Fore.RED + "Warning:" + Fore.RESET + "Please enter a valid User ID from the list.")
                             else:
-                                print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid Username from the list.")
+                                print(Fore.RED + "Warning:" + Fore.RESET + "Please enter a valid User ID from the list.")
                             
                     elif user_input == '2':
                         break
@@ -468,7 +480,7 @@ class Profile:
         print(f"First Name: {user_info[0][1]}")
         print(f"Last Name: {user_info[0][2]}")
         print(f"Email address: {user_info[0][3]}")
-        print(f"Username: {user_info[0][4]}")
+        print(f"User ID: {user_info[0][4]}")
         print(f"Age: {user_info[0][6]}")
         print(f"Gender: {user_info[0][7]}")
         print(f"Interests: {user_info[0][8]}")
@@ -480,9 +492,9 @@ class Profile:
     def update(self):
         val = 0
         while True:
-            choice = input("Do you want to change any information? (yes/no): ")
+            choice = input("Do you want to change any information? ('yes' or 'no'): ")
             if choice.lower() == "yes":
-                self.username = input("Confirm Your Username: ")
+                self.username = input("Confirm Your User ID: ")
                 self.password = getpass(prompt="Confirm Your Password: ")
                 data = (self.username,)
                 inputData = (self.username, self.password,)
@@ -500,7 +512,8 @@ class Profile:
                     print("6. Drinking")
                     print("7. Preferred Gender")
                     print("8. Bio")
-                    print("9. Exit")
+                    print("9. Back")
+                    print("10. Log out")
                     field = input("Enter your choice to change? ")
                     if re.search("[0-9]", field):
                         if field == '1':
@@ -510,11 +523,14 @@ class Profile:
                                 try:
                                     age = int(input("Enter new age: "))
                                     
-                                    if age < (0):
+                                    if age <= (0):
                                         print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid age. \n")
                                         flag = flag + 1
+                                    elif age >= (100):
+                                        print(Fore.YELLOW + "Warning: " + Fore.RESET + "Please enter age less than 100")
+                                        flag = flag + 1
                                     elif age < int(user_info[0][6]):
-                                        print("Age can't be decreased. \n")
+                                        print(Fore.YELLOW + "Warning: " + Fore.RESET + "Age can't be decreased. \n")
                                         flag = flag + 1
                                     elif age == int(user_info[0][6]):
                                         print("No changes made. \n")
@@ -523,25 +539,25 @@ class Profile:
                                         val = 0
                                     if flag == 0:
                                         db.update_user_info(user_id, "age", age)
-                                        print("Age updated successfully! \n")
+                                        print(Fore.GREEN + "Age updated successfully! \n" +Style.RESET_ALL)
                                         break
                                 except ValueError:
-                                    print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid age. \n")
+                                    print(Fore.RED + "Error: " + Fore.RESET + "Please enter a valid age. \n")
                         elif field == '2':
                             val = val + 1
                             while True:
-                                gender = input("What is your gender? (male or female): ")
+                                gender = input("What is your gender? ('male' or 'female'): ")
                                 if gender.lower() == "male" or gender.lower() == "female" :
                                     if gender == user_info[0][7]:
                                         print("No changes made. \n")
                                         break
                                     else:
                                         db.update_user_info(user_id, "gender", gender)
-                                        print("Gender updated successfully! \n")
+                                        print(Fore.GREEN + "Gender updated successfully! \n" +Style.RESET_ALL)
                                         break
                                 else:
                                     # Handle invalid input
-                                    print("Error: please enter 'male' or 'female'. \n")
+                                    print(Fore.RED + "Error: " + Fore.RESET + "Please enter 'male' or 'female'. \n")
                                 
                         elif field == '3':
                             val = val + 1
@@ -550,83 +566,84 @@ class Profile:
                             existing_interests_list = existing_interests.split(',')
                             add_interests = [interest for interest in complete_interests if interest not in existing_interests_list]
                             remove_interests = [interest for interest in existing_interests_list]
-                            print("1. Add")
-                            print("2. Remove")
-                            choice_in = input("Do you want to add or remove?")
-                            if choice_in == '1':                        
-                                if add_interests == []:
-                                    print("No new Interests to add.")
+                            while True:
+                                print("1. Add")
+                                print("2. Remove")
+                                choice_in = input("Do you want to add or remove?")
+                                if choice_in == '1':                        
+                                    if add_interests == []:
+                                        print("No new Interests to add.")
                                     
+                                    else:
+                                        print("\nAvailable Interests for Adding:")
+                                        selected_interests = []
+                                        for i, interest in enumerate(add_interests, 1):
+                                                print(f"{i}. {interest}") 
+                                        while True:
+                                            interest_num = input("Enter the number of an interest (or 'done' to finish): ")
+                                            if not selected_interests and interest_num.lower() == 'done':
+                                                print(Fore.RED + "Error: " + Fore.RESET + "Enter atleast one interest. \n")
+                                            else:
+                                                if interest_num.lower() == 'done': 
+                                                    break   
+                                                try:
+                                                    interest_index = int(interest_num) - 1
+                                                    if interest_index < 0 or interest_index >= len(add_interests):
+                                                        raise ValueError
+                                                    selected_interest = add_interests[interest_index]
+                                                    if selected_interest in selected_interests:
+                                                        print(Fore.YELLOW + "Warning: " + Fore.RESET + "You have already selected this interest. \n")
+                                                    else:
+                                                        selected_interests.append(selected_interest)
+                                                        existing_interests_list.append(selected_interest)
+                                                        print(Fore.GREEN + "Interests updated successfully! \n" +Style.RESET_ALL)
+                                                        if set(selected_interests) == set(add_interests):
+                                                            print(Fore.YELLOW + "Warning: " + Fore.RESET + "You have selected all possible interests. \n")
+                                                            print(Fore.Green + "Interests updated successfully! \n" +Style.RESET_ALL)
+                                                            break      
+                                                except ValueError:
+                                                    print(Fore.RED + "Error: " + Fore.RESET + "Please enter a valid interest number. \n")
+                                        updated_interests = ','.join(existing_interests_list)
+                                        db.update_user_info(user_id, "interests", updated_interests)
+                                        break         
+                                elif choice_in == '2':
+                                    val = val + 1
+                                    if remove_interests == []:
+                                        print("No new Interests to remove")
+                                    else:
+                                        print("\nCurrent Interests for Removing:")
+                                        selected_interests = []
+                                        for i, interest in enumerate(remove_interests, 1):
+                                            print(f"{i}. {interest}")
+                                        while True:
+                                            interest_num = input("Enter the number of an interest (or 'done' to finish): ")
+                                            if not selected_interests and interest_num.lower() == 'done':
+                                                print(Fore.RED + "Error: " + Fore.RESET + "Please enter atleast one interest. \n")
+                                            else:
+                                                if interest_num.lower() == 'done':
+                                                    break
+                                                try:
+                                                    interest_index = int(interest_num) - 1
+                                                    if interest_index < 0 or interest_index >= len(remove_interests):
+                                                        raise ValueError
+                                                    selected_interest = remove_interests[interest_index]
+                                                    if selected_interest in selected_interests:
+                                                        print(Fore.YELLOW + "Warning: " + Fore.RESET + "You have already selected this interest. \n")
+                                                    else:
+                                                        selected_interests.append(selected_interest)
+                                                        existing_interests_list.remove(selected_interest)
+                                                        print(Fore.Green + "Interests removed successfully! \n" +Style.RESET_ALL)
+                                                        if set(selected_interests) == set(remove_interests):
+                                                            print("You have selected all possible interests. \n")
+                                                            print(Fore.Green + "Interests removed successfully! \n" +Style.RESET_ALL)
+                                                            break
+                                                except ValueError:
+                                                    print(Fore.RED + "Error: " + Fore.RESET + "Please enter a valid interest number. \n")
+                                        updated_interests = ','.join(existing_interests_list)
+                                        db.update_user_info(user_id, "interests", updated_interests)
+                                        break              
                                 else:
-                                    print("Available Interests for Adding: \n")
-                                    selected_interests = []
-                                    for i, interest in enumerate(add_interests, 1):
-                                            print(f"{i}. {interest}") 
-                                    while True:
-                                        interest_num = input("Enter the number of an interest (or 'done' to finish): ")
-                                        if not selected_interests and interest_num.lower() == 'done':
-                                            print(Fore.RED + "Error:" + Fore.RESET + "Enter atleast one interest. \n")
-                                        else:
-                                            if interest_num.lower() == 'done': 
-                                                break   
-                                            try:
-                                                interest_index = int(interest_num) - 1
-                                                if interest_index < 0 or interest_index >= len(add_interests):
-                                                    raise ValueError
-                                                selected_interest = add_interests[interest_index]
-                                                if selected_interest in selected_interests:
-                                                    print("You have already selected this interest. \n")
-                                                else:
-                                                    selected_interests.append(selected_interest)
-                                                    existing_interests_list.append(selected_interest)
-                                                    print("Interests updated successfully! \n")
-                                                    if set(selected_interests) == set(add_interests):
-                                                        print("You have selected all possible interests. \n")
-                                                        print("Interests updated successfully! \n")
-                                                        break      
-                                            except ValueError:
-                                                print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid interest number. \n")
-                                    updated_interests = ','.join(existing_interests_list)
-                                    db.update_user_info(user_id, "interests", updated_interests)
-                                            
-                            elif choice_in == '2':
-                                val = val + 1
-                                if remove_interests == []:
-                                    print("No new Interests to remove")
-                                else:
-                                    print("\nCurrent Interests for Removing:")
-                                    selected_interests = []
-                                    for i, interest in enumerate(remove_interests, 1):
-                                        print(f"{i}. {interest}")
-                                    while True:
-                                        interest_num = input("Enter the number of an interest (or 'done' to finish): ")
-                                        if not selected_interests and interest_num.lower() == 'done':
-                                            print(Fore.RED + "Error:" + Fore.RESET + "Please ennter atleast one interest. \n")
-                                        else:
-                                            if interest_num.lower() == 'done':
-                                                break
-                                            try:
-                                                interest_index = int(interest_num) - 1
-                                                if interest_index < 0 or interest_index >= len(remove_interests):
-                                                    raise ValueError
-                                                selected_interest = remove_interests[interest_index]
-                                                if selected_interest in selected_interests:
-                                                    print("You have already selected this interest. \n")
-                                                else:
-                                                    selected_interests.append(selected_interest)
-                                                    existing_interests_list.remove(selected_interest)
-                                                    print("Interests removed successfully! \n")
-                                                    if set(selected_interests) == set(remove_interests):
-                                                        print("You have selected all possible interests. \n")
-                                                        print("Interests removed successfully! \n")
-                                                        break
-                                            except ValueError:
-                                                print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid interest number. \n")
-                                    updated_interests = ','.join(existing_interests_list)
-                                    db.update_user_info(user_id, "interests", updated_interests)
-                                            
-                            else:
-                                print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid choice")
+                                    print(Fore.RED + "Error: " + Fore.RESET + "Please enter a valid choice.")
                             #interests = input("Enter your interests (comma-separated): ")
                             #interests_set = set(interests.split(","))
                         elif field == '4':
@@ -636,27 +653,35 @@ class Profile:
                                     height = float(input("Enter new height: \n"))
                                     if height <= 0.0:
                                         raise ValueError
+<<<<<<< Updated upstream
                                     if height > 300.0:
                                         print("Maximum height allowed is 300 centimeters \n ")
                                     if int(height) ==  user_info[0][9]:
+=======
+                                    if height <=55.0:
+                                        print(Fore.YELLOW + "Warning: " + Fore.RESET + "Minimum height allowed is 55 centimeters. \n")
+                                    elif height > 300.0:
+                                        print(Fore.YELLOW + "Warning: " + Fore.RESET + "Maximum height allowed is 300 centimeters. \n ")
+                                    elif int(height) ==  user_info[0][9]:
+>>>>>>> Stashed changes
                                         print("No changes made. \n")
                                         break
                                     else:
                                         db.update_user_info(user_id, "height", height)
-                                        print("Height updated successfully! \n")
+                                        print(Fore.GREEN + "Height updated successfully! \n" +Style.RESET_ALL)
                                         break
                                 except ValueError:
                                     print(Fore.RED + "Error:" + Fore.RESET + " Please enter a valid height. \n")
                         elif field == '5':
                             val = val + 1
                             while True:
-                                smoking = input("Do you smoke? (yes or no): ")
+                                smoking = input("Do you smoke? ('yes' or 'no'): ")
                                 if smoking.lower() == "yes" or smoking.lower() == "no":
                                     if smoking.lower() == user_info[0][10]:
                                         print("No changes made. \n")
                                     else:
                                         db.update_user_info(user_id, "smoking", smoking)
-                                        print("Smoking status updated successfully! \n")
+                                        print(Fore.GREEN + "Smoking status updated successfully! \n" + Style.RESET_ALL)
                                     break
                                 else:
                                 # Handle invalid input
@@ -664,32 +689,32 @@ class Profile:
                         elif field == '6':
                             val = val + 1
                             while True:
-                                drinking = input("Do you drink? (yes or no): ")
+                                drinking = input("Do you drink? ('yes' or 'no'): ")
                                 if drinking.lower() == "yes" or drinking.lower() == "no":
                                     if drinking.lower() == user_info[0][11]:
                                         print("No changes made. \n")
                                     else:
                                         db.update_user_info(user_id, "drinking", drinking)
-                                        print("Drinking status updated successfully! \n")
+                                        print(Fore.GREEN + "Drinking status updated successfully! \n" +Style.RESET_ALL)
                                     break
                                 else:
                                 # Handle invalid input
-                                    print(Fore.RED + "Error:" + Fore.RESET + "Please enter 'yes' or 'no'. \n")
+                                    print(Fore.RED + "Error: " + Fore.RESET + "Please enter 'yes' or 'no'. \n")
                         elif field == '7':
                             val = val + 1
                             while True:
-                                genderpreferences = input("Enter your new gender preference? (male or female or no preference): ")
-                                if genderpreferences.lower() == "male" or genderpreferences.lower() == "female" or genderpreferences.lower() == "no preference":
+                                genderpreferences = input("Enter your new gender preference? ('male' or 'female' or 'na' no preference): ")
+                                if genderpreferences.lower() == "male" or genderpreferences.lower() == "female" or genderpreferences.lower() == "na":
                                     if genderpreferences == user_info[0][12]:
                                         print("No changes made. \n")
                                         break
                                     else:
                                         db.update_user_info(user_id, "genderpreferences", genderpreferences)
-                                        print("Gender preference updated successfully! \n")
+                                        print(Fore.GREEN + "Gender preference updated successfully! \n" +Style.RESET_ALL)
                                         break
                                 else:
                                     # Handle invalid input
-                                    print(Fore.RED + "Error: " + Fore.RESET + "Please enter 'male' or 'female' or 'no preference'. \n")
+                                    print(Fore.YELLOW + "Error: " + Fore.RESET + "Please enter 'male' or 'female' or 'na' for no preference. \n")
                        
                         elif field == '8':
                             val = val + 1
@@ -700,34 +725,37 @@ class Profile:
                                     break
                                 if len(bio) <= 100:
                                     db.update_user_info(user_id, "bio", bio)
-                                    print("Bio updated successfully! \n")
+                                    print(Fore.GREEN + "Bio updated successfully! \n" + Style.RESET_ALL)
                                     break
                                 else:
-                                    print("Bio should be 100 characters or less. \n")
+                                    print(Fore.Yellow + "Warning:" + Fore.RESET + "Bio should be 100 characters or less. \n")
                         elif field == '9':
                             Profile()
                             break
+                        elif field == '10':
+                            print("See you!! comeback soon, Happy dating.\n")
+                            sys.exit()
                         else:
-                            print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid choice. \n")
+                            print(Fore.RED + "Error: " + Fore.RESET + "Please enter a valid choice. \n")
                     else:
-                        print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid choice. \n")
+                        print(Fore.RED + "Error: " + Fore.RESET + "Please enter a valid choice. \n")
                 elif returnVal == False:
-                    print(Fore.RED + "Error:" + Fore.RESET + "Wrong Credentials. \n")
+                    print(Fore.RED + "Error: " + Fore.RESET + "Wrong Credentials. \n")
                 else:
-                    print(Fore.RED + "Error:" + Fore.RESET + "Wrong username provided. \n")
+                    print(Fore.RED + "Error: " + Fore.RESET + "Wrong User ID provided. \n")
             elif choice.lower() == "no":
                 if val == 0:
                     print("No changes made. \n")
                     break
                 else:
-                    print("Updated!!! \n")
+                    print(Fore.GREEN + "Updated!!! \n" + Style.RESET_ALL)
                     Profile()
                     break
             else:
-                print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid choice. \n")
+                print(Fore.RED + "Error: " + Fore.RESET + "Please enter a valid choice. \n")
 
 while True:
-    print("Heyo!! Welcome to dating App")
+    print("Heyo!! Welcome to VU Dating App!!!")
     print("1. Login")
     print("2. Register")
     print("3. Exit")
@@ -740,9 +768,9 @@ while True:
             register = Register()
             register.add()
         elif option == '3':
-            print("See you!! comeback, Happy dating..\n\n")
+            print("See you!! comeback soon, Happy dating.\n")
             break
         else:
-            print(Fore.RED + "Error:" + Fore.RESET + "please enter a valid choice..\n")
+            print(Fore.RED + "Error: " + Fore.RESET + "Please enter a valid choice.\n")
     else:
-        print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid choice\n")
+        print(Fore.RED + "Error: " + Fore.RESET + "Please enter a valid choice.\n")
