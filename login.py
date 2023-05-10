@@ -100,7 +100,7 @@ class Register:
             self.firstname = input("Enter Your First Name: ")
            
             if re.match(pattern1, self.firstname):
-                    val = val + 1
+                val = val + 1
             else:
                 if self.firstname.startswith("'"):
                     print(Fore.RED + "Error:" + Fore.RESET + "First name can't start with ' \n") 
