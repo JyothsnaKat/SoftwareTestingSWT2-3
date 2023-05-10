@@ -362,7 +362,7 @@ class ViewRequests:
 
                                 user_input = input("Enter your choice: ")
                                 if user_input == '1':
-                                    req_id = input("Enter username to accept/reject or type 'back' to go back: ")
+                                    req_id = input("Enter User ID to accept/reject or type 'back' to go back: ")
                                     if req_id.lower() == 'back':
                                         break
                                     else:
@@ -396,7 +396,7 @@ class ViewRequests:
                                                     print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid choice.")
                                             break
                                         else:
-                                            print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid username from the list.")
+                                            print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid User ID from the list.")
 
                                 elif user_input == '2':
                                     break
@@ -421,12 +421,12 @@ class ViewMatches:
         else:
             print("Your matches:")
             table = PrettyTable()
-            table.field_names = ["Username", "Name" , "Age" , "Bio"]
+            table.field_names = ["User ID", "Name" , "Age" , "Bio"]
             usernames = []
             for m in matches:
                 table.add_row([m[2], m[1], m[3], m[9]])
                 usernames.append(m[2])  # Add the username to the list
-            print(table.get_string(fields=["Username", "Name", "Age", "Bio"]))
+            print(table.get_string(fields=["User ID", "Name", "Age", "Bio"]))
 
             
             while True:
@@ -449,7 +449,7 @@ class ViewMatches:
                                 row = db.getUserDetails(user_id)
                                 if row:
                                     profile = PrettyTable()
-                                    profile.field_names = ["Username", "Name", "Age", "Interests", "Height", "Smoking", "Drinking", "Bio"]
+                                    profile.field_names = ["User ID", "Name", "Age", "Interests", "Height", "Smoking", "Drinking", "Bio"]
                                     profile.add_row([row[4], row[1] + " " + row[2], row[6], row[8], row[9], row[10], row[11], row[12]])
                                     print(profile)
                                     while True:
@@ -459,9 +459,9 @@ class ViewMatches:
                                         else:
                                             print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid option.")
                                 else:
-                                    print("No user found with this username.")
+                                    print("No user found with this User ID.")
                             else:
-                                print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid Username from the list.")
+                                print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid User ID from the list.")
                             
                     elif user_input == '2':
                         break
