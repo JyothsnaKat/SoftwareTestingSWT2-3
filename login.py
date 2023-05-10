@@ -353,7 +353,7 @@ class ViewRequests:
                                 break
                             else:
                                 print(Fore.RED + "Error:" + Fore.RESET + "Enter a valid option")
-                            break     
+                                continue     
 
                                 
                 elif option == '2':
@@ -364,35 +364,54 @@ class ViewRequests:
                             print("You don't have any received requests yet.")
                             break
                             
-                        else:
-                            print(received_requests)
+                        else:                           
 
-                            req_id = input("Enter User ID to accept/reject or type 'back' to go back: ")
-                            if req_id.lower() == 'back':
-                                break
-                            else:
-                                if req_id in requests_dict:                       
-                                    while True:
-                                        choice = input("Do you want to accept or reject the request? (a/r): ")
-                                        if choice.lower() == 'a':
-                                            db.acceptRequest(req_id, self.user_id)                                            
-                                            print("Request accepted.")
-                                            print("Its a match!!!")
+                            while received_requests:
+                                print(received_requests)
+                                print("")
+                                print("1. View Profile")
+                                print("2. Go Back")
+
+                                user_input = input("Enter your choice: ")
+                                if user_input == '1':
+                                    req_id = input("Enter User ID to accept/reject or type 'back' to go back: ")
+                                    if req_id.lower() == 'back':
+                                        break
+                                    else:
+                                        if req_id in requests_dict:                                 
+                                            user_details = requests_dict[req_id]
+                                            user_table = PrettyTable()
+                                            user_table.field_names = ["ID", "Name", "Age", "Interests", "Height", "Preferences", "Bio"]
+                                            user_table.add_row([user_details[0], user_details[1], user_details[6], user_details[2], f"{user_details[3]}cm", user_details[4], user_details[5][:25]])
+                                            print(user_table)
+                                          
                                             while True:
-                                                go_back = input("Enter 'back' to go back to the list:" )
-                                                if re.search(r'\bback\b', go_back, re.IGNORECASE):
+                                                choice = input("Do you want to accept or reject the request? (a/r): ")
+                                                if choice.lower() == 'a':
+                                                    db.acceptRequest(req_id, self.user_id)                                            
+                                                    print("Request accepted.")
+                                                    print("Its a match!!!")
+                                                    del requests_dict[req_id]
+                                                    while True:
+                                                        go_back = input("Enter 'back' to go back to the list:" )
+                                                        if re.search(r'\bback\b', go_back, re.IGNORECASE):
+                                                            break
+                                                        else:
+                                                            print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid Option")
+                                                    break
+                                                elif choice.lower() == 'r':
+                                                    db.rejectRequest(req_id, self.user_id)
+                                                    print("Request rejected.")
+                                                    del requests_dict[req_id]
                                                     break
                                                 else:
-                                                    print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid Option")
-                                            break
-                                        elif choice.lower() == 'r':
-                                            db.rejectRequest(req_id, self.user_id)
-                                            print("Request rejected.")
+                                                    print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid choice.")
                                             break
                                         else:
-                                            print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid choice.")
-                                else:
-                                    print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid User ID from the list.")
+                                            print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid User ID from the list.")
+
+                                elif user_input == '2':
+                                    break
                 elif option == '3':
                     break
                 else:
@@ -435,7 +454,7 @@ class ViewMatches:
                     if user_input == '1':
                         while True:
                             print("")
-                            user_id = input("Please enter the User ID from the list, you want to view or enter 'back' to go to the: ")
+                            user_id = input("Please enter the user name of the profile from the list you want to view or enter 'back' to go to the: ")
                             if re.search(r'\bback\b', user_id, re.IGNORECASE):
                                 break
                             elif user_id in usernames:
@@ -452,15 +471,16 @@ class ViewMatches:
                                         else:
                                             print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid option.")
                                 else:
-                                    print(Fore.RED + "Warning:" + Fore.RESET + "Please enter a valid User ID from the list.")
+                                    print("No user found with this User ID.")
                             else:
-                                print(Fore.RED + "Warning:" + Fore.RESET + "Please enter a valid User ID from the list.")
+                                print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid User ID from the list.")
                             
                     elif user_input == '2':
                         break
                     else:
                         print(Fore.RED + "Error:" + Fore.RESET + " Wrong Input..\n\n")
                         continue
+                      
                       
                 
 
