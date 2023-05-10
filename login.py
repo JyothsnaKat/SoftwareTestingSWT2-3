@@ -653,17 +653,13 @@ class Profile:
                                     height = float(input("Enter new height: \n"))
                                     if height <= 0.0:
                                         raise ValueError
-<<<<<<< Updated upstream
                                     if height > 300.0:
                                         print("Maximum height allowed is 300 centimeters \n ")
-                                    if int(height) ==  user_info[0][9]:
-=======
-                                    if height <=55.0:
+                                    if height <= 55.0:
                                         print(Fore.YELLOW + "Warning: " + Fore.RESET + "Minimum height allowed is 55 centimeters. \n")
                                     elif height > 300.0:
                                         print(Fore.YELLOW + "Warning: " + Fore.RESET + "Maximum height allowed is 300 centimeters. \n ")
                                     elif int(height) ==  user_info[0][9]:
->>>>>>> Stashed changes
                                         print("No changes made. \n")
                                         break
                                     else:

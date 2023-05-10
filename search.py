@@ -131,24 +131,14 @@ class Search():
                         flag=0
                         while True:
                             found = False
-<<<<<<< Updated upstream
-                            user_id = input("Please enter the userID of the profile you want to view:")
-                            if not any(result[4]==user_id for result in data):
-                                print(Fore.RED + "Error:" + Fore.RESET + "Please enter userID from the list.\n")
-=======
                             user_id = input("Please enter the User ID of the profile you want to view:")
                             if not any(result[4]==user_id for result in data):
                                 print(Fore.RED + "Error:" + Fore.RESET + "Please enter User ID from the list.\n")
->>>>>>> Stashed changes
                                 continue
                             for result in data:
                                 if result[4]==user_id:
                                     profile = PrettyTable()
-<<<<<<< Updated upstream
-                                    profile.field_names = ["userID", "Name", "Age", "Interests", "Height","Smoking","Drinking","Gender","Bio"]
-=======
                                     profile.field_names = ["User ID", "Name", "Age", "Interests", "Height","Smoking","Drinking","Gender","Bio"]
->>>>>>> Stashed changes
                                     profile.add_row([result[4],result[1]+" "+result[2],result[6],result[8],result[9],result[10],result[11],result[7],result[13]])
                                     print(profile)
                                     #Inside view profile to either send a request or go back to search results
