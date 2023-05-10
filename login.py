@@ -27,7 +27,7 @@ class Login:
     """
 
     def __init__(self):
-        self.username = input("Enter Your Username: ")
+        self.username = input("Enter Your User ID: ")
         self.password = getpass(prompt="Enter Your Password: ")
         global username 
         global password 
