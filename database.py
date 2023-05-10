@@ -13,7 +13,6 @@ class Database:
     def __init__(self):
         try:
             self.conn = sqlite3.connect("test.db")
-            print("Successfully connected to the system")
             self.curr = self.conn.cursor()
         except:
             print("Failed")
@@ -166,7 +165,7 @@ class Database:
             Method for Retrieving Sent Requests for a User
         '''
         sent_requests = """
-            SELECT request.to_user_id, (cred.firstname || ' ' || cred.lastname) AS full_name, cred.interests, cred.height, cred.genderpreferences, cred.bio, request.status
+            SELECT request.to_user_id, (cred.firstname || ' ' || cred.lastname) AS full_name, cred.interests, cred.height, cred.genderpreferences, cred.bio, request.status, cred.age
             FROM request 
             INNER JOIN cred 
             ON request.to_user_id = cred.username 
@@ -176,9 +175,9 @@ class Database:
         rows = self.curr.fetchall()
         if rows:
             table = PrettyTable()
-            table.field_names = ["ID", "Name", "Interests", "Height", "Preferences", "Bio","Status"]
-            for row in rows:
-                table.add_row([row[0], row[1], row[2], f"{row[3]}cm", row[4], row[5][:25], row[6]])
+            table.field_names = ["ID", "Name", "Age", "Interests", "Height", "Preferences", "Bio","Status"]
+            for row in rows:             
+                table.add_row([row[0], row[1], row[7], row[2], f"{row[3]}cm", row[4], row[5][:25], "Accepted" if row[6] == 1 else "Pending"])
             return table
         return None
 
@@ -220,7 +219,7 @@ class Database:
             Method for Retrieving Received Requests for a User
         '''
         received_requests = """
-            SELECT request.from_user_id,  (cred.firstname || ' ' || cred.lastname)  AS full_name, cred.interests, cred.height, cred.genderpreferences, cred.bio
+            SELECT request.from_user_id,  (cred.firstname || ' ' || cred.lastname)  AS full_name, cred.interests, cred.height, cred.genderpreferences, cred.bio, cred.age
             FROM request 
             INNER JOIN cred 
             ON request.from_user_id = cred.username 
@@ -230,13 +229,31 @@ class Database:
         rows = self.curr.fetchall()
         if rows:
             table = PrettyTable()
-            table.field_names = ["ID", "Name", "Interests", "Height", "Preferences", "Bio"]
             requests_dict = {}
+            table.field_names = ["ID", "Name", "Age"]
             for row in rows:
-                table.add_row([row[0], row[1], row[2], f"{row[3]}cm", row[4], row[5][:25]])
+                table.add_row([row[0], row[1], row[6]])
                 requests_dict[row[0]] = row
+            
             return table, requests_dict
         return None, None
+            
+
+                    
+
+
+            
+        
+        # return None, None
+            
+
+        #     table.field_names = ["ID", "Name", "Interests", "Height", "Preferences", "Bio"]
+            
+        #     for row in rows:
+        #         table.add_row([row[0], row[1], row[2], f"{row[3]}cm", row[4], row[5][:25]])
+        #         requests_dict[row[0]] = row
+        #     return table, requests_dict
+        # return None, None
 
 
 
@@ -279,7 +296,7 @@ class Database:
         '''
         self.curr.execute(get_user_by_id, user_id)
         user = self.curr.fetchall()
-        print(user)
+        #print(user)
         return user
     def searchEmail(self,user_email):
         get_user_by_email = '''
