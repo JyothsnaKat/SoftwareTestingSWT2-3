@@ -239,22 +239,6 @@ class Database:
         return None, None
             
 
-                    
-
-
-            
-        
-        # return None, None
-            
-
-        #     table.field_names = ["ID", "Name", "Interests", "Height", "Preferences", "Bio"]
-            
-        #     for row in rows:
-        #         table.add_row([row[0], row[1], row[2], f"{row[3]}cm", row[4], row[5][:25]])
-        #         requests_dict[row[0]] = row
-        #     return table, requests_dict
-        # return None, None
-
 
 
 
