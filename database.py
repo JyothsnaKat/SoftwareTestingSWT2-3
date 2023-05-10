@@ -175,7 +175,7 @@ class Database:
         rows = self.curr.fetchall()
         if rows:
             table = PrettyTable()
-            table.field_names = ["ID", "Name", "Age", "Interests", "Height", "Preferences", "Bio","Status"]
+            table.field_names = ["User ID", "Name", "Age", "Interests", "Height", "Preferences", "Bio","Status"]
             for row in rows:             
                 table.add_row([row[0], row[1], row[7], row[2], f"{row[3]}cm", row[4], row[5][:25], "Accepted" if row[6] == 1 else "Pending"])
             return table
@@ -230,7 +230,7 @@ class Database:
         if rows:
             table = PrettyTable()
             requests_dict = {}
-            table.field_names = ["ID", "Name", "Age"]
+            table.field_names = ["User ID", "Name", "Age"]
             for row in rows:
                 table.add_row([row[0], row[1], row[6]])
                 requests_dict[row[0]] = row
