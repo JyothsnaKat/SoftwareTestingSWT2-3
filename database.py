@@ -367,9 +367,9 @@ class Database:
         """
         #sub query to remove the users to which the request has already been sent.
         exclude_query = '''
-            SELECT to_user_id FROM request WHERE from_user_id = ? 
+            SELECT to_user_id FROM request WHERE from_user_id = ? UNION SELECT user2_id FROM matches WHERE user1_id = ? UNION SELECT user1_id FROM matches WHERE user2_id = ?
         '''
-        self.curr.execute(exclude_query, (userID,))
+        self.curr.execute(exclude_query, (userID,userID,userID))
         exclude_usernames = [row[0] for row in self.curr.fetchall()]
 
         #Adding own user name so that we exclude our profile while searching.
