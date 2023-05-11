@@ -454,7 +454,7 @@ class ViewMatches:
                     if user_input == '1':
                         while True:
                             print("")
-                            user_id = input("Please enter the user name of the profile from the list you want to view or enter 'back' to go to the: ")
+                            user_id = input("Please enter the user ID of the profile from the list you want to view or enter 'back' to go to the: ")
                             if re.search(r'\bback\b', user_id, re.IGNORECASE):
                                 break
                             elif user_id in usernames:
@@ -652,10 +652,10 @@ class Profile:
                                                     else:
                                                         selected_interests.append(selected_interest)
                                                         existing_interests_list.remove(selected_interest)
-                                                        print(Fore.Green + "Interests removed successfully! \n" +Style.RESET_ALL)
+                                                        print(Fore.GREEN + "Interests removed successfully! \n" +Style.RESET_ALL)
                                                         if set(selected_interests) == set(remove_interests):
                                                             print("You have selected all possible interests. \n")
-                                                            print(Fore.Green + "Interests removed successfully! \n" +Style.RESET_ALL)
+                                                            print(Fore.GREEN + "Interests removed successfully! \n" +Style.RESET_ALL)
                                                             break
                                                 except ValueError:
                                                     print(Fore.RED + "Error: " + Fore.RESET + "Please enter a valid interest number. \n")
