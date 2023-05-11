@@ -69,7 +69,7 @@ class Login:
                         view_requests = ViewRequests(self.username)
                         view_requests.view()
                     elif secondOption == '5':
-                        print(Fore.LIGHTLIGHTMAGENTA_EX + "Bye Bye!! Come back to us!! Happy dating!!\n" + Style.RESET_ALL)
+                        print(Fore.LIGHTMAGENTA_EX + "Bye Bye!! Come back to us!! Happy dating!!\n" + Style.RESET_ALL)
                         
                         break
                     else:
