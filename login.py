@@ -427,6 +427,7 @@ class ViewMatches:
 
     def view(self):
         matches = db.getMatches(self.user_id)
+        
         if not matches:
             print("You have no matches.")
             print("")
@@ -438,12 +439,15 @@ class ViewMatches:
             for m in matches:
                 table.add_row([m[2], m[1], m[3], m[9]])
                 usernames.append(m[2])  # Add the username to the list
-            print(table.get_string(fields=["User ID", "Name", "Age", "Bio"]))
-            flag = 0
+            
+            
+            
+            
             
             while True:
-                if flag == 1:
-                    break
+                
+                print(table.get_string(fields=["User ID", "Name", "Age", "Bio"]))
+                print("")
                 print("Please choose an option: ")
                 print("1. View Profile")
                 print("2. Go Back")
@@ -454,11 +458,13 @@ class ViewMatches:
                  # View profile
                     if user_input == '1':
                         while True:
+                            check_flag=0
+                            if check_flag==1:
+                                break
                             print("")
                             user_id = input("Please enter the User ID from the list you want to view or enter 'back' to go to the list: ")
                             if re.search(r'\bback\b', user_id, re.IGNORECASE):
-                                flag = 1
-                                break
+                                break                                
                             elif user_id in usernames:
                                 row = db.getUserDetails(user_id)
                                 if row:
@@ -467,9 +473,9 @@ class ViewMatches:
                                     profile.add_row([row[4], row[1] + " " + row[2], row[6], row[8], row[9], row[10], row[11], row[13]])
                                     print(profile)
                                     while True:
-                                        go_back = input("Enter 'back' to go back to the list: ")
+                                        go_back = input("Enter 'back' to view another Profile: ")
                                         if re.search(r'\bback\b', go_back, re.IGNORECASE):
-                                            print(table.get_string(fields=["User ID", "Name", "Age", "Bio"]))
+                                            check_flag = 1
                                             break
                                         else:
                                             print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid option.")
