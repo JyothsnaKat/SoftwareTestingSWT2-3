@@ -385,7 +385,10 @@ class ViewRequests:
                                 
                                 continue     
                 elif option == '2':
+                    flag = 0
                     while True:
+                        if flag == 1:
+                            break
                         received_requests, requests_dict = db.getReceivedRequests(self.user_id)
                         if not received_requests:
                             
@@ -446,10 +449,12 @@ class ViewRequests:
                                             
 
                                 elif user_input == '2':
+                                    flag = 1
                                     break
                 elif option == '3':
                     break
                 elif option == '4':
+                    print(Fore.LIGHTMAGENTA_EX + "Bye Bye!! Come back to us!! Happy dating!!\n" + Style.RESET_ALL)
                     time.sleep(3)
                     sys.exit()
                 else:
@@ -597,6 +602,7 @@ class ViewMatches:
                     elif user_input == '2':
                         break
                     elif user_input == '3':
+                        print(Fore.LIGHTMAGENTA_EX + "Bye Bye!! Come back to us!! Happy dating!!\n" + Style.RESET_ALL)
                         time.sleep(3)
                         sys.exit()
                     else:
