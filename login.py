@@ -69,7 +69,7 @@ class Login:
                         view_requests = ViewRequests(self.username)
                         view_requests.view()
                     elif secondOption == '5':
-                        print(Fore.LIGHTLIGHTMAGENTA_EX_EX + "Bye Bye!! Come back to us!! Happy dating!!\n" + Style.RESET_ALL)
+                        print(Fore.LIGHTLIGHTMAGENTA_EX + "Bye Bye!! Come back to us!! Happy dating!!\n" + Style.RESET_ALL)
                         
                         break
                     else:
@@ -364,7 +364,7 @@ class ViewRequests:
                 print("1. Sent Requests")
                 print("2. Received Requests")
                 print("3. Main Menu")
-                print("4. Log out")
+                print("4. Logout")
                 option = input("Enter your choice: ")
                 if option == '1':
                     sent_requests = db.getSentRequests(self.user_id)
@@ -653,7 +653,7 @@ class Profile:
                     print("7. Preferred Gender")
                     print("8. Bio")
                     print("9. Main Menu")
-                    print("10. Log out")
+                    print("10. Logout")
                     field = input("Enter your choice to change: ")
                     if re.search("[0-9]", field):
                         if field == '1':
