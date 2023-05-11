@@ -23,8 +23,8 @@ class Search():
                 if match:
                     self.min_age = int(match.group(1))
                     self.max_age = int(match.group(2))
-                    if self.min_age < 18 or self.max_age > 100:
-                        raise ValueError(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid age range between 18 and 100.")
+                    if self.min_age < 18 or self.max_age > 99:
+                        raise ValueError(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid age range between 18 and 99.")
                     elif self.min_age > self.max_age or self.min_age == self.max_age:
                         raise ValueError(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid age range in the format 'min-max'(e.g. 20-30).")
                     break
