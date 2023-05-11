@@ -374,7 +374,7 @@ class ViewRequests:
 
                                 user_input = input("Enter your choice: ")
                                 if user_input == '1':
-                                    req_id = input("Enter User ID to accept/reject or type 'back' to go back: ")
+                                    req_id = input("Enter User ID from the list to view or type 'back' to go back: ")
                                     if req_id.lower() == 'back':
                                         break
                                     else:
@@ -439,34 +439,37 @@ class ViewMatches:
                 table.add_row([m[2], m[1], m[3], m[9]])
                 usernames.append(m[2])  # Add the username to the list
             print(table.get_string(fields=["User ID", "Name", "Age", "Bio"]))
-
+            flag = 0
             
             while True:
-                print("")
-                print("Please choose an option")
-                print("")
+                if flag == 1:
+                    break
+                print("Please choose an option: ")
                 print("1. View Profile")
                 print("2. Go Back")
                 user_input = input("Your choice: ")
             
+                
                 if re.search("[0-9]", user_input):
                  # View profile
                     if user_input == '1':
                         while True:
                             print("")
-                            user_id = input("Please enter the user ID of the profile from the list you want to view or enter 'back' to go to the: ")
+                            user_id = input("Please enter the User ID from the list you want to view or enter 'back' to go to the list: ")
                             if re.search(r'\bback\b', user_id, re.IGNORECASE):
+                                flag = 1
                                 break
                             elif user_id in usernames:
                                 row = db.getUserDetails(user_id)
                                 if row:
                                     profile = PrettyTable()
                                     profile.field_names = ["User ID", "Name", "Age", "Interests", "Height", "Smoking", "Drinking", "Bio"]
-                                    profile.add_row([row[4], row[1] + " " + row[2], row[6], row[8], row[9], row[10], row[11], row[12]])
+                                    profile.add_row([row[4], row[1] + " " + row[2], row[6], row[8], row[9], row[10], row[11], row[13]])
                                     print(profile)
                                     while True:
                                         go_back = input("Enter 'back' to go back to the list: ")
                                         if re.search(r'\bback\b', go_back, re.IGNORECASE):
+                                            print(table.get_string(fields=["User ID", "Name", "Age", "Bio"]))
                                             break
                                         else:
                                             print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid option.")
@@ -478,8 +481,9 @@ class ViewMatches:
                     elif user_input == '2':
                         break
                     else:
-                        print(Fore.RED + "Error:" + Fore.RESET + " Wrong Input..\n\n")
+                        print(Fore.RED + "Error:" + Fore.RESET + " Wrong Input.")
                         continue
+
                       
                       
                 
@@ -655,7 +659,7 @@ class Profile:
                                                         print(Fore.GREEN + "Interests removed successfully! \n" +Style.RESET_ALL)
                                                         if set(selected_interests) == set(remove_interests):
                                                             print("You have selected all possible interests. \n")
-                                                            print(Fore.GREEN + "Interests removed successfully! \n" +Style.RESET_ALL)
+                                                            print(Fore.Green + "Interests removed successfully! \n" +Style.RESET_ALL)
                                                             break
                                                 except ValueError:
                                                     print(Fore.RED + "Error: " + Fore.RESET + "Please enter a valid interest number. \n")
