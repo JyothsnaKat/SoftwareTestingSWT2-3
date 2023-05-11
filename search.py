@@ -3,6 +3,7 @@ from prettytable import PrettyTable
 from database import Database
 import sys
 from colorama import init, Fore, Style
+import time
 
 db = Database()
 class Search():
@@ -106,6 +107,7 @@ class Search():
                         return 3
                     elif user_input == '3':
                         print(Fore.MAGENTA + "Bye Bye!! Come back to us!! Happy dating!!\n" + Style.RESET_ALL)
+                        time.sleep(3)
                         sys.exit()
                     else:
                         print(Fore.RED + "\nError:" + Fore.RESET + "Please enter a valid option.\n")
@@ -173,6 +175,7 @@ class Search():
                     #Exit
                     elif user_input == '4':
                         print(Fore.MAGENTA + "Bye Bye!! Come back to us!! Happy dating!!\n" + Style.RESET_ALL)
+                        time.sleep(3)
                         sys.exit()
                     else:
                         print(Fore.RED + "\nError:" + Fore.RESET + "Please enter a valid option.\n")

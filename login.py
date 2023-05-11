@@ -8,6 +8,7 @@ import random
 import string
 from search import Search
 from prettytable import PrettyTable
+import time
 
 
 db = Database()
@@ -160,7 +161,7 @@ class Register:
             f = 1
         else:
             print(Fore.RED + "Sorry! An account already exists with this email address.\n" + Style.RESET_ALL)
-            
+            time.sleep(3)
             sys.exit()
         #age
         while True:
@@ -188,12 +189,13 @@ class Register:
                         data = (self.firstname, self.lastname, self.email, self.age )
                         result = db.insertDataUnder(data)
                     val = val + 1
+                    time.sleep(3)
                     sys.exit()
                 if self.age >= 18 and flag != 0:
                     check = db.searchEmailUnderage(data)
                     if check  == 0:
                         print(Fore.RED + "Sorry! we noticed that your mail address belongs to underage individual.\n" + Style.RESET_ALL)
-                        
+                        time.sleep(3)
                         sys.exit()
                     else:
                         print(Fore.GREEN + "Congrats!!Basic Validation done.\n" + Style.RESET_ALL)
@@ -448,6 +450,7 @@ class ViewRequests:
                 elif option == '3':
                     break
                 elif option == '4':
+                    time.sleep(3)
                     sys.exit()
                 else:
                     print(Fore.RED + "\nError: " + Fore.RESET + "Please enter a valid option.\n")
@@ -594,6 +597,7 @@ class ViewMatches:
                     elif user_input == '2':
                         break
                     elif user_input == '3':
+                        time.sleep(3)
                         sys.exit()
                     else:
                         print(Fore.RED + "\nError: " + Fore.RESET + " Please enter a valid option.\n")
@@ -906,7 +910,7 @@ class Profile:
                             break
                         elif field == '10':
                             print(Fore.LIGHTMAGENTA_EX + "\nSee you!! comeback soon, Happy dating." + Style.RESET_ALL)
-                            
+                            time.sleep(3)
                             sys.exit()
                         else:
                             print(Fore.RED + "\nError: " + Fore.RESET + "Please enter a valid choice.\n")
