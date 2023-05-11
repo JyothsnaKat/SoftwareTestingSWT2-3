@@ -463,6 +463,81 @@ class ViewMatches:
 
     def view(self):
         matches = db.getMatches(self.user_id)
+        
+        if not matches:
+            print("You have no matches.")
+            print("")
+        else:
+            print("Your matches:")
+            table = PrettyTable()
+            table.field_names = ["User ID", "Name" , "Age" , "Bio"]
+            usernames = []
+            for m in matches:
+                table.add_row([m[2], m[1], m[3], m[9]])
+                usernames.append(m[2])  # Add the username to the list
+            
+            
+            
+            
+            
+            while True:
+                
+                print(table.get_string(fields=["User ID", "Name", "Age", "Bio"]))
+                print("")
+                print("Please choose an option: ")
+                print("1. View Profile")
+                print("2. Go Back")
+                user_input = input("Your choice: ")
+            
+                
+                if re.search("[0-9]", user_input):
+                 # View profile
+                    if user_input == '1':
+                        while True:
+                            check_flag=0
+                            if check_flag==1:
+                                break
+                            print("")
+                            user_id = input("Please enter the User ID from the list you want to view or enter 'back' to go to the list: ")
+                            if re.search(r'\bback\b', user_id, re.IGNORECASE):
+                                break                                
+                            elif user_id in usernames:
+                                row = db.getUserDetails(user_id)
+                                if row:
+                                    profile = PrettyTable()
+                                    profile.field_names = ["User ID", "Name", "Age", "Interests", "Height", "Smoking", "Drinking", "Bio"]
+                                    profile.add_row([row[4], row[1] + " " + row[2], row[6], row[8], row[9], row[10], row[11], row[13]])
+                                    print(profile)
+                                    while True:
+                                        go_back = input("Enter 'back' to view another Profile: ")
+                                        if re.search(r'\bback\b', go_back, re.IGNORECASE):
+                                            check_flag = 1
+                                            break
+                                        else:
+                                            print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid option.")
+                                else:
+                                    print("No user found with this User ID.")
+                            else:
+                                print(Fore.RED + "Error:" + Fore.RESET + "Please enter a valid User ID from the list.")
+                            
+                    elif user_input == '2':
+                        break
+                    else:
+                        print(Fore.RED + "Error:" + Fore.RESET + " Wrong Input.")
+                        continue
+
+                      
+                      
+                
+
+    """
+        Class for viewing matches
+    """
+    def __init__(self, user_id):
+        self.user_id = user_id
+
+    def view(self):
+        matches = db.getMatches(self.user_id)
         if not matches:
             print("You have no matches. \n")
             
