@@ -3,3 +3,4 @@ cffi==1.14.0
 pycparser==2.20
 six==1.14.0
 prettytable==3.7.0
+colorama==0.4.6
